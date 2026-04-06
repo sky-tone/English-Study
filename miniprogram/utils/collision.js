@@ -294,13 +294,7 @@ function checkBasicOrder(sentence, newBlock, insertIndex) {
 function findGoingToIndex(sentence) {
   for (let i = 0; i < sentence.length; i++) {
     if (sentence[i].word.toLowerCase() === 'going to' ||
-        sentence[i].word.toLowerCase() === 'going to') {
-      return i;
-    }
-  }
-  // 也检查 "be going to" 作为一个整体的情况
-  for (let i = 0; i < sentence.length - 1; i++) {
-    if (sentence[i].tenseGroup === 'be_going_to') {
+        sentence[i].tenseGroup === 'be_going_to') {
       return i;
     }
   }

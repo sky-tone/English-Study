@@ -45,8 +45,9 @@ Page({
     const completedSentences = wx.getStorageSync('completedSentences') || [];
     const totalSentences = completedSentences.length || 0;
     const totalErrors = errorLog.length;
-    const accuracy = totalSentences > 0
-      ? Math.round(((totalSentences - totalErrors) / totalSentences) * 100)
+    const totalAttempts = totalSentences + totalErrors;
+    const accuracy = totalAttempts > 0
+      ? Math.round((totalSentences / totalAttempts) * 100)
       : 100;
     const levelsCompleted = wx.getStorageSync('levelsCompleted') || 0;
 

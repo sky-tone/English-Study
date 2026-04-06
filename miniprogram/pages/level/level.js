@@ -218,7 +218,6 @@ Page({
 
     // 目标1: 使用 will 或 be going to
     const allBlocks = [...currentSentence];
-    completedSentences.forEach(() => { /* 已完成的也算 */ });
     const hasWill = allBlocks.some(b => b.word === 'will');
     const hasGoingTo = allBlocks.some(b => b.word === 'going to');
     if (hasWill || hasGoingTo) {
