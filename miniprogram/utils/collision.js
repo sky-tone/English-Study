@@ -107,6 +107,11 @@ function checkCollision(existingBlock, newBlock, currentSentence, insertIndex) {
     return orderResult;
   }
 
+  // 如果语序检查返回了提示消息（accepted 但有 tip），传递该消息
+  if (orderResult && orderResult.accepted && orderResult.message) {
+    return orderResult;
+  }
+
   return { accepted: true, message: '' };
 }
 
