@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "闯关",
+  "usingComponents": {
+    "block-item": "/components/block/block",
+    "sentence-area": "/components/sentence-area/sentence-area",
+    "backpack": "/components/backpack/backpack",
+    "npc-dialog": "/components/npc-dialog/npc-dialog"
+  }
+}

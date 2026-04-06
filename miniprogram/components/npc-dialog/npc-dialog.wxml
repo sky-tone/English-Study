@@ -1,0 +1,35 @@
+<!--
+  npc-dialog.wxml - NPC 情景对话组件
+  显示教材原生 IP（Aki、Ben 等）的对话气泡
+-->
+<view class="npc-dialog-container {{visible ? 'visible' : ''}}" wx:if="{{visible}}">
+  <!-- NPC 角色 -->
+  <view class="npc-character">
+    <!-- 角色头像 -->
+    <view class="npc-avatar-wrap">
+      <view class="npc-avatar" style="background-color: {{avatarColor}}">
+        <text class="npc-avatar-emoji">{{avatarEmoji}}</text>
+      </view>
+      <text class="npc-name">{{npcName}}</text>
+    </view>
+
+    <!-- 对话气泡 -->
+    <view class="dialog-bubble animate-pop">
+      <!-- 主消息 -->
+      <text class="dialog-message">{{message}}</text>
+
+      <!-- 子消息（中文提示） -->
+      <text class="dialog-sub" wx:if="{{subMessage}}">{{subMessage}}</text>
+
+      <!-- 关闭/继续按钮 -->
+      <view class="dialog-actions">
+        <view class="dialog-btn" bindtap="onDismiss">
+          <text>我来帮你！Let's go! 🚀</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 背景遮罩 -->
+  <view class="dialog-overlay" bindtap="onDismiss"></view>
+</view>

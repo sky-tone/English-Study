@@ -1,0 +1,97 @@
+<!--
+  teacher.wxml - 教师管理端
+  功能：创建班级、下发作业、查看班级统计（Phase 2 完善）
+-->
+<view class="teacher-page">
+  <!-- 头部 -->
+  <view class="teacher-header">
+    <view class="teacher-avatar">
+      <text class="avatar-emoji">👨‍🏫</text>
+    </view>
+    <view class="teacher-info">
+      <text class="teacher-title">教师管理端</text>
+      <text class="teacher-subtitle">Teacher Admin Panel</text>
+    </view>
+  </view>
+
+  <!-- 快捷操作 -->
+  <view class="actions-section">
+    <text class="section-title">⚡ 快捷操作</text>
+    <view class="action-grid">
+      <view class="action-card" bindtap="createClass">
+        <text class="action-icon">📚</text>
+        <text class="action-name">创建班级</text>
+        <text class="action-desc">生成班级二维码</text>
+      </view>
+      <view class="action-card" bindtap="assignHomework">
+        <text class="action-icon">📝</text>
+        <text class="action-name">下发作业</text>
+        <text class="action-desc">选择模块闯关</text>
+      </view>
+      <view class="action-card" bindtap="viewStats">
+        <text class="action-icon">📊</text>
+        <text class="action-name">班级统计</text>
+        <text class="action-desc">查看学情数据</text>
+      </view>
+      <view class="action-card" bindtap="shareToGroup">
+        <text class="action-icon">📲</text>
+        <text class="action-name">分享到群</text>
+        <text class="action-desc">一键分享卡片</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 我的班级 -->
+  <view class="classes-section card">
+    <text class="section-title">🏫 我的班级</text>
+
+    <view class="class-list" wx:if="{{classes.length > 0}}">
+      <view class="class-item" wx:for="{{classes}}" wx:key="id">
+        <view class="class-info">
+          <text class="class-name">{{item.name}}</text>
+          <text class="class-count">{{item.studentCount}} 名学生</text>
+        </view>
+        <view class="class-status">
+          <text class="status-text">{{item.status}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-class" wx:else>
+      <text class="empty-icon">📚</text>
+      <text class="empty-text">还没有创建班级</text>
+      <view class="btn-primary" bindtap="createClass">
+        <text>+ 创建第一个班级</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 作业管理 -->
+  <view class="homework-section card">
+    <text class="section-title">📋 可下发的闯关模块</text>
+    <view class="module-list">
+      <view class="module-item" wx:for="{{modules}}" wx:key="id">
+        <view class="module-icon" style="background-color: {{item.color}}">
+          <text>{{item.icon}}</text>
+        </view>
+        <view class="module-info">
+          <text class="module-name">{{item.name}}</text>
+          <text class="module-desc">{{item.description}}</text>
+          <text class="module-levels">{{item.levelCount}} 个关卡</text>
+        </view>
+        <view class="module-action" bindtap="assignModule" data-id="{{item.id}}">
+          <text>下发</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Phase 2 提示 -->
+  <view class="phase-notice card">
+    <text class="notice-icon">🔧</text>
+    <text class="notice-text">
+      教师端完整功能（微信登录、班级管理、数据回传）将在 Phase 2 版本中实现。
+      当前为功能预览模式。
+    </text>
+  </view>
+</view>
