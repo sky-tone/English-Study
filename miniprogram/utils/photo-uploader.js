@@ -18,7 +18,7 @@ const STORAGE_KEY_PREFIX = 'uploaded_photos_';
 const DEFAULT_CONFIG = {
   maxPhotos: 9,           // 单次最多选择张数
   maxSizeKB: 10240,       // 单张最大 10MB
-  storageKeysuffix: 'default'
+  storageKeySuffix: 'default'
 };
 
 /**
