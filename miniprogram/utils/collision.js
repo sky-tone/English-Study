@@ -451,7 +451,7 @@ function validateUseToStructure(sentence) {
   );
   if (useIndex === -1) return errors;
 
-  // Use 后面必须是名词工具
+  // Use 后面必须是名词工具（名词工具在数据模型中类型为 VERB，verbForm 为 NOUN）
   const afterUse = sentence[useIndex + 1];
   if (afterUse && afterUse.type === BlockType.VERB && afterUse.verbForm !== VerbForm.NOUN) {
     errors.push('"Use" 后面要跟工具名称（名词）');
