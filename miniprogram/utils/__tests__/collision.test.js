@@ -25,6 +25,7 @@ const {
   validateBeVerbAgreement,
   validateWillVerbForm,
   validateBeGoingToVerbForm,
+  validateBeGoingToBeVerb,
   validateUseToStructure,
   calculateScore
 } = require('../collision');
@@ -510,6 +511,21 @@ describe('validateSentence', () => {
     const result = validateSentence(sentence);
     expect(result.valid).toBe(true);
   });
+
+  test('I + going to + visit (missing be-verb) → invalid on submit', () => {
+    const sentence = [subjectI(), tenseGoingTo(), verbBare('visit the Great Wall'), timeBlock('this Saturday')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('am'))).toBe(true);
+    expect(result.score).toBeLessThan(100);
+  });
+
+  test('He + going to + visit (missing be-verb) → invalid on submit', () => {
+    const sentence = [subjectHe(), tenseGoingTo(), verbBare('visit the Great Wall')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('is'))).toBe(true);
+  });
 });
 
 // ============================================================
@@ -642,6 +658,58 @@ describe('validateBeGoingToVerbForm', () => {
   test('going to not followed by verb → no errors', () => {
     const sentence = [subjectI(), tenseAm(), tenseGoingTo(), timeBlock()];
     expect(validateBeGoingToVerbForm(sentence)).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// 12b. validateBeGoingToBeVerb
+// ============================================================
+describe('validateBeGoingToBeVerb', () => {
+  test('I + am + going to → no errors', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('We + are + going to → no errors', () => {
+    const sentence = [subjectWe(), tenseAre(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('He + is + going to → no errors', () => {
+    const sentence = [subjectHe(), tenseIs(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('I + going to (missing am) → error', () => {
+    const sentence = [subjectI(), tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('am');
+  });
+
+  test('He + going to (missing is) → error', () => {
+    const sentence = [subjectHe(), tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('is');
+  });
+
+  test('We + going to (missing are) → error', () => {
+    const sentence = [subjectWe(), tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('are');
+  });
+
+  test('no going to in sentence → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('going to at start of sentence (no prev block) → error', () => {
+    const sentence = [tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
   });
 });
 

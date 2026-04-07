@@ -356,6 +356,10 @@ function validateSentence(sentence) {
   const beGoingToErrors = validateBeGoingToVerbForm(sentence);
   errors.push(...beGoingToErrors);
 
+  // 规则G3b: "going to" 前必须有正确的 be 动词
+  const beGoingToBeVerbErrors = validateBeGoingToBeVerb(sentence);
+  errors.push(...beGoingToBeVerbErrors);
+
   // 规则G4: Use...to... 结构完整性
   const useToErrors = validateUseToStructure(sentence);
   errors.push(...useToErrors);
@@ -440,6 +444,37 @@ function validateBeGoingToVerbForm(sentence) {
 }
 
 /**
+ * 规则G3b: 验证 "going to" 前面必须有正确的 be 动词
+ * 例如: "I going to visit" → 错误（缺少 am）, "I am going to visit" → 正确
+ */
+function validateBeGoingToBeVerb(sentence) {
+  const errors = [];
+  const beVerbs = ['am', 'is', 'are'];
+
+  for (let i = 0; i < sentence.length; i++) {
+    if (sentence[i].word.toLowerCase() === 'going to' ||
+        sentence[i].tenseGroup === 'be_going_to') {
+      // 检查前面是否紧跟一个 be 动词
+      const prevBlock = sentence[i - 1];
+      const hasBeVerb = prevBlock &&
+        prevBlock.type === BlockType.TENSE &&
+        beVerbs.includes(prevBlock.word.toLowerCase());
+
+      if (!hasBeVerb) {
+        // 查找主语以给出正确的 be 动词提示
+        const subjectBlock = sentence.find(b => b.type === BlockType.SUBJECT);
+        const correctVerb = subjectBlock && BE_VERB_RULES[subjectBlock.word]
+          ? BE_VERB_RULES[subjectBlock.word][0]
+          : 'am/is/are';
+        errors.push(`"going to" 前面要加 "${correctVerb}"，如 "${correctVerb} going to"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
  * 规则G4: 验证 Use...to... 结构完整性
  * Use 后面应跟名词工具，to 后面应跟动词
  */
@@ -498,6 +533,7 @@ module.exports = {
   validateBeVerbAgreement,
   validateWillVerbForm,
   validateBeGoingToVerbForm,
+  validateBeGoingToBeVerb,
   validateUseToStructure,
   calculateScore
 };
