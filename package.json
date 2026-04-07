@@ -1,0 +1,24 @@
+{
+  "name": "english-study",
+  "version": "1.0.0",
+  "description": "🧱 积木化英语造句与智能语法防错拦截 · 微信小程序",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sky-tone/English-Study.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sky-tone/English-Study/issues"
+  },
+  "homepage": "https://github.com/sky-tone/English-Study#readme",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

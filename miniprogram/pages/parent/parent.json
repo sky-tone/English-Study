@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "家长中心",
+  "usingComponents": {
+    "radar-chart": "/components/radar-chart/radar-chart"
+  }
+}

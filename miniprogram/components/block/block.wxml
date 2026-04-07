@@ -1,0 +1,34 @@
+<!--
+  block.wxml - 磁性积木组件
+  支持拖拽、吸附、弹开动画
+  颜色根据积木类型自动设置
+-->
+<view
+  class="block-container {{shaking ? 'shake' : ''}} {{bouncing ? 'bounce' : ''}}"
+  style="background-color: {{color}}; left: {{x}}px; top: {{y}}px; {{dragging ? 'z-index: 999; opacity: 0.9; transform: scale(1.1);' : ''}}"
+  data-id="{{blockData.id}}"
+  catchtouchstart="onTouchStart"
+  catchtouchmove="onTouchMove"
+  catchtouchend="onTouchEnd"
+>
+  <view class="block-inner">
+    <!-- 左侧连接点 -->
+    <view class="connector connector-left" wx:if="{{showLeftConnector}}"></view>
+
+    <!-- 积木文字 -->
+    <text class="block-text">{{blockData.word}}</text>
+
+    <!-- 积木类型标签 -->
+    <view class="block-tag" wx:if="{{showTag}}">
+      <text class="tag-text">{{tagText}}</text>
+    </view>
+
+    <!-- 右侧连接点 -->
+    <view class="connector connector-right" wx:if="{{showRightConnector}}"></view>
+  </view>
+
+  <!-- 拒绝提示气泡 -->
+  <view class="reject-bubble {{showReject ? 'visible' : ''}}" wx:if="{{rejectMessage}}">
+    <text class="reject-text">{{rejectMessage}}</text>
+  </view>
+</view>

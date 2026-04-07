@@ -1,0 +1,80 @@
+<!--
+  sentence-area.wxml - 句子拼装区域
+  学生拖拽积木到此区域完成造句
+-->
+<view class="sentence-area-container">
+  <!-- 区域标题 -->
+  <view class="area-header">
+    <text class="area-title">✏️ 在这里拼装句子</text>
+    <view class="area-actions">
+      <view class="action-btn clear-btn" bindtap="onClear">
+        <text>🗑️ 清空</text>
+      </view>
+      <view class="action-btn submit-btn" bindtap="onSubmit" wx:if="{{sentenceBlocks.length > 0}}">
+        <text>✅ 提交</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 拼装区域 - 已放置的积木 -->
+  <view
+    class="assembly-zone {{isDropTarget ? 'drop-target' : ''}}"
+    bindtap="onAreaTap"
+  >
+    <!-- 空状态提示 -->
+    <view class="empty-hint" wx:if="{{sentenceBlocks.length === 0}}">
+      <text class="empty-icon">📦</text>
+      <text class="empty-text">从下方拖拽积木到这里开始造句</text>
+      <text class="empty-sub">Drag blocks here to build a sentence</text>
+    </view>
+
+    <!-- 已拼装的积木序列 -->
+    <view class="sentence-row" wx:if="{{sentenceBlocks.length > 0}}">
+      <view
+        class="placed-block"
+        wx:for="{{sentenceBlocks}}"
+        wx:key="instanceId"
+        style="background-color: {{item.color}}"
+        data-index="{{index}}"
+        bindlongpress="onBlockLongPress"
+        bindtap="onBlockTap"
+      >
+        <text class="placed-text">{{item.word}}</text>
+        <!-- 删除按钮 -->
+        <view class="remove-btn" catchtap="onRemoveBlock" data-index="{{index}}" wx:if="{{editMode}}">
+          <text>×</text>
+        </view>
+      </view>
+
+      <!-- 句末标点 -->
+      <text class="period" wx:if="{{sentenceBlocks.length > 0}}">.</text>
+    </view>
+  </view>
+
+  <!-- 句子预览 -->
+  <view class="sentence-preview" wx:if="{{sentenceBlocks.length > 0}}">
+    <text class="preview-label">预览：</text>
+    <text class="preview-text">{{previewText}}</text>
+  </view>
+
+  <!-- 验证反馈 -->
+  <view class="feedback {{feedbackType}}" wx:if="{{feedbackMessage}}">
+    <text class="feedback-icon">{{feedbackType === 'success' ? '🎉' : feedbackType === 'warning' ? '💡' : '❌'}}</text>
+    <text class="feedback-text">{{feedbackMessage}}</text>
+  </view>
+
+  <!-- 已完成的句子列表（多句模式） -->
+  <view class="completed-sentences" wx:if="{{completedSentences.length > 0}}">
+    <view class="completed-header">
+      <text class="completed-title">✅ 已完成的句子 ({{completedSentences.length}})</text>
+    </view>
+    <view
+      class="completed-item"
+      wx:for="{{completedSentences}}"
+      wx:key="index"
+    >
+      <text class="completed-number">{{index + 1}}.</text>
+      <text class="completed-text">{{item}}</text>
+    </view>
+  </view>
+</view>

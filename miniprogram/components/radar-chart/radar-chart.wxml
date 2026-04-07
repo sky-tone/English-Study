@@ -1,0 +1,40 @@
+<!--
+  radar-chart.wxml - 五维学情雷达图组件
+  显示拼写、语法、句法、交际、拼读五个维度
+-->
+<view class="radar-container">
+  <view class="radar-header">
+    <text class="radar-title">📊 五维学情雷达图</text>
+    <text class="radar-subtitle">Five-Dimension Learning Radar</text>
+  </view>
+
+  <!-- Canvas 雷达图 -->
+  <view class="radar-canvas-wrap">
+    <canvas
+      type="2d"
+      id="radarCanvas"
+      class="radar-canvas"
+      style="width: {{canvasWidth}}px; height: {{canvasHeight}}px;"
+    ></canvas>
+  </view>
+
+  <!-- 维度详情列表 -->
+  <view class="dimension-list">
+    <view class="dimension-item" wx:for="{{dimensions}}" wx:key="key">
+      <view class="dim-color" style="background-color: {{item.color}}"></view>
+      <text class="dim-label">{{item.label}}</text>
+      <view class="dim-bar-wrap">
+        <view class="dim-bar" style="width: {{item.value}}%; background-color: {{item.color}}"></view>
+      </view>
+      <text class="dim-value">{{item.value}}%</text>
+      <text class="dim-level">{{item.level}}</text>
+    </view>
+  </view>
+
+  <!-- 综合评价 -->
+  <view class="overall-section">
+    <text class="overall-label">综合掌握度：</text>
+    <text class="overall-score {{overallLevel}}">{{overallScore}}%</text>
+    <text class="overall-desc">{{overallDesc}}</text>
+  </view>
+</view>
