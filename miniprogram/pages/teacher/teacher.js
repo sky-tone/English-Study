@@ -1,8 +1,10 @@
 /**
  * teacher.js - 教师管理端
- * Phase 1: 功能预览模式
+ * Phase 1: 功能预览模式 + 拍照上传练习资料
  * Phase 2: 完整的班级管理、作业下发功能
  */
+const { choosePhoto, getPhotos, deletePhoto, clearPhotos, previewPhoto } = require('../../utils/photo-uploader');
+
 Page({
   data: {
     classes: [],
@@ -23,12 +25,17 @@ Page({
         color: '#9B59B6',
         levelCount: 1
       }
-    ]
+    ],
+    uploadedPhotos: []
   },
 
   onLoad() {
     // Phase 2: 从服务器加载教师的班级数据
     this.loadMockData();
+  },
+
+  onShow() {
+    this.setData({ uploadedPhotos: getPhotos('teacher') });
   },
 
   loadMockData() {
@@ -90,6 +97,65 @@ Page({
       content: '微信分享功能将在 Phase 2 中实现。\n\n届时您可以：\n1. 生成带参的小程序卡片\n2. 一键分享至班级微信群\n3. 学生点击卡片自动绑定班级',
       showCancel: false,
       confirmText: '知道了'
+    });
+  },
+
+  /**
+   * 拍照上传练习资料
+   */
+  uploadPhoto() {
+    choosePhoto({ role: 'teacher', maxPhotos: 9 }).then(result => {
+      if (result.success) {
+        this.setData({ uploadedPhotos: getPhotos('teacher') });
+        wx.showToast({ title: result.message, icon: 'success' });
+      } else if (result.message) {
+        wx.showToast({ title: result.message, icon: 'none' });
+      }
+    });
+  },
+
+  /**
+   * 预览照片
+   */
+  onPreviewPhoto(e) {
+    const url = e.currentTarget.dataset.url;
+    const urls = this.data.uploadedPhotos.map(p => p.path);
+    previewPhoto(url, urls);
+  },
+
+  /**
+   * 删除照片
+   */
+  onDeletePhoto(e) {
+    const photoId = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '删除照片',
+      content: '确定要删除这张照片吗？',
+      success: (res) => {
+        if (res.confirm) {
+          deletePhoto('teacher', photoId);
+          this.setData({ uploadedPhotos: getPhotos('teacher') });
+          wx.showToast({ title: '已删除', icon: 'success' });
+        }
+      }
+    });
+  },
+
+  /**
+   * 清空所有照片
+   */
+  onClearPhotos() {
+    if (this.data.uploadedPhotos.length === 0) return;
+    wx.showModal({
+      title: '清空照片',
+      content: '确定要清空所有已上传的练习资料照片吗？',
+      success: (res) => {
+        if (res.confirm) {
+          clearPhotos('teacher');
+          this.setData({ uploadedPhotos: [] });
+          wx.showToast({ title: '已清空', icon: 'success' });
+        }
+      }
     });
   }
 });
