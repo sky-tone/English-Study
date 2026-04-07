@@ -1,0 +1,93 @@
+<!--
+  index.wxml - 首页/角色选择页
+-->
+<view class="index-page">
+  <!-- 顶部 Banner -->
+  <view class="hero-section">
+    <view class="hero-bg">
+      <text class="hero-emoji">🧱</text>
+      <text class="hero-title">搭搭乐</text>
+      <text class="hero-subtitle">Dada-le English Builder</text>
+      <text class="hero-desc">积木化英语造句 · 智能语法防错</text>
+    </view>
+  </view>
+
+  <!-- 角色选择卡片 -->
+  <view class="role-section">
+    <text class="section-title">选择你的身份 Choose Your Role</text>
+
+    <!-- 学生入口 -->
+    <view class="role-card student-card" bindtap="enterStudent">
+      <view class="role-icon-wrap student-icon">
+        <text class="role-icon">👦</text>
+      </view>
+      <view class="role-info">
+        <text class="role-name">我是学生</text>
+        <text class="role-name-en">I'm a Student</text>
+        <text class="role-desc">拖拽积木造句，完成闯关任务！</text>
+      </view>
+      <text class="role-arrow">▶</text>
+    </view>
+
+    <!-- 家长入口 -->
+    <view class="role-card parent-card" bindtap="enterParent">
+      <view class="role-icon-wrap parent-icon">
+        <text class="role-icon">👩</text>
+      </view>
+      <view class="role-info">
+        <text class="role-name">我是家长</text>
+        <text class="role-name-en">I'm a Parent</text>
+        <text class="role-desc">查看学情报告，一键导出错题卷</text>
+      </view>
+      <text class="role-arrow">▶</text>
+    </view>
+
+    <!-- 教师入口 -->
+    <view class="role-card teacher-card" bindtap="enterTeacher">
+      <view class="role-icon-wrap teacher-icon">
+        <text class="role-icon">👨‍🏫</text>
+      </view>
+      <view class="role-info">
+        <text class="role-name">我是老师</text>
+        <text class="role-name-en">I'm a Teacher</text>
+        <text class="role-desc">一键建班，下发积木闯关作业</text>
+      </view>
+      <text class="role-arrow">▶</text>
+    </view>
+  </view>
+
+  <!-- 关卡预览 -->
+  <view class="preview-section">
+    <text class="section-title">🎮 闯关预览 Level Preview</text>
+    <scroll-view scroll-x class="level-scroll">
+      <view class="level-cards">
+        <view
+          class="level-card"
+          wx:for="{{levels}}"
+          wx:key="id"
+          bindtap="previewLevel"
+          data-id="{{item.id}}"
+        >
+          <view class="level-badge">Lv.{{index + 1}}</view>
+          <text class="level-title">{{item.title}}</text>
+          <text class="level-subtitle">{{item.subtitle}}</text>
+          <view class="level-difficulty">
+            <text
+              class="star"
+              wx:for="{{3}}"
+              wx:for-item="star"
+              wx:for-index="starIdx"
+              wx:key="starIdx"
+            >{{starIdx < item.difficulty ? '⭐' : '☆'}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 底部信息 -->
+  <view class="footer">
+    <text class="footer-text">搭搭乐 Dada-le V1.0 · Phase 1 MVP</text>
+    <text class="footer-sub">Module 2 Travel Plan · Module 5 Invitations</text>
+  </view>
+</view>

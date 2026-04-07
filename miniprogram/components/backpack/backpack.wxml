@@ -1,0 +1,70 @@
+<!--
+  backpack.wxml - 词汇背包组件
+  底部常驻词库，显示当周词汇
+-->
+<view class="backpack-container {{expanded ? 'expanded' : ''}}">
+  <!-- 展开/收起按钮 -->
+  <view class="backpack-handle" bindtap="toggleExpand">
+    <text class="handle-icon">🎒</text>
+    <text class="handle-text">词汇背包 Vocabulary</text>
+    <text class="handle-arrow">{{expanded ? '▼' : '▲'}}</text>
+  </view>
+
+  <!-- 词汇列表 -->
+  <scroll-view
+    class="word-list"
+    scroll-x="{{true}}"
+    wx:if="{{expanded}}"
+  >
+    <view class="word-categories">
+      <!-- 分类标签栏 -->
+      <view class="category-tabs">
+        <view
+          class="category-tab {{activeCategory === 'all' ? 'active' : ''}}"
+          bindtap="switchCategory"
+          data-category="all"
+        >
+          <text>全部</text>
+        </view>
+        <view
+          class="category-tab {{activeCategory === 'nouns' ? 'active' : ''}}"
+          bindtap="switchCategory"
+          data-category="nouns"
+        >
+          <text>名词</text>
+        </view>
+        <view
+          class="category-tab {{activeCategory === 'verbs' ? 'active' : ''}}"
+          bindtap="switchCategory"
+          data-category="verbs"
+        >
+          <text>动词</text>
+        </view>
+        <view
+          class="category-tab {{activeCategory === 'others' ? 'active' : ''}}"
+          bindtap="switchCategory"
+          data-category="others"
+        >
+          <text>其他</text>
+        </view>
+      </view>
+
+      <!-- 词汇卡片 -->
+      <scroll-view scroll-x class="words-scroll">
+        <view class="words-row">
+          <view
+            class="word-card"
+            wx:for="{{filteredWords}}"
+            wx:key="word"
+            bindtap="onWordTap"
+            data-word="{{item}}"
+          >
+            <text class="word-english">{{item.word}}</text>
+            <text class="word-chinese">{{item.chinese}}</text>
+            <text class="word-phonetic" wx:if="{{item.phonetic}}">{{item.phonetic}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </scroll-view>
+</view>

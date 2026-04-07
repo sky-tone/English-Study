@@ -1,0 +1,275 @@
+/* level.wxss - 闯关页面样式 */
+
+.level-page {
+  min-height: 100vh;
+  padding-bottom: 160rpx; /* 为词汇背包留空间 */
+  background: #F5F7FA;
+}
+
+/* 顶部信息栏 */
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.level-badge {
+  background: #4A90D9;
+  color: #fff;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.level-name {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.score-label {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.score-value {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #F39C12;
+}
+
+/* 任务目标 */
+.objectives-bar {
+  padding: 16rpx 24rpx;
+  background: #FAFFFE;
+  border-bottom: 1rpx solid #E8F8F0;
+}
+
+.objective-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 4rpx 0;
+}
+
+.obj-check {
+  font-size: 24rpx;
+}
+
+.obj-text {
+  font-size: 22rpx;
+  color: #666;
+}
+
+/* 积木控制台 */
+.blocks-console {
+  margin: 20rpx;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.console-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.console-hint {
+  font-size: 22rpx;
+  color: #999;
+  display: block;
+  margin-bottom: 20rpx;
+}
+
+/* 积木分类 */
+.block-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.block-category {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.category-label {
+  font-size: 22rpx;
+  font-weight: bold;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  display: inline-block;
+  align-self: flex-start;
+}
+
+.subject-label { color: #4A90D9; background: rgba(74, 144, 217, 0.08); }
+.tense-label { color: #E74C3C; background: rgba(231, 76, 60, 0.08); }
+.verb-label { color: #27AE60; background: rgba(39, 174, 96, 0.08); }
+.time-label { color: #F39C12; background: rgba(243, 156, 18, 0.08); }
+.sequence-label { color: #9B59B6; background: rgba(155, 89, 182, 0.08); }
+
+.block-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+/* 点击式积木（非拖拽模式） */
+.tap-block {
+  display: inline-flex;
+  align-items: center;
+  padding: 14rpx 24rpx;
+  border-radius: 14rpx;
+  box-shadow: 0 3rpx 10rpx rgba(0, 0, 0, 0.12);
+  transition: all 0.15s ease;
+}
+
+.tap-block:active {
+  transform: scale(0.93);
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.15);
+}
+
+.tap-block-text {
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: bold;
+  text-shadow: 0 1rpx 2rpx rgba(0, 0, 0, 0.15);
+}
+
+/* 关卡完成弹窗 */
+.completion-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.completion-modal.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.completion-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.completion-content {
+  position: relative;
+  z-index: 301;
+  background: #fff;
+  border-radius: 32rpx;
+  padding: 48rpx 36rpx;
+  width: 80%;
+  max-width: 600rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+  animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.completion-emoji {
+  font-size: 80rpx;
+}
+
+.completion-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.completion-score {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #F39C12;
+}
+
+.completion-sentences {
+  width: 100%;
+  padding: 16rpx;
+  background: #F5F7FA;
+  border-radius: 16rpx;
+}
+
+.comp-sent {
+  display: block;
+  font-size: 24rpx;
+  color: #333;
+  padding: 6rpx 0;
+  line-height: 1.5;
+}
+
+.completion-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.comp-btn {
+  padding: 14rpx 28rpx;
+  border-radius: 28rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+}
+
+.comp-btn-retry {
+  background: #F0F0F0;
+  color: #666;
+}
+
+.comp-btn-next {
+  background: linear-gradient(135deg, #4A90D9, #357ABD);
+  color: #fff;
+}
+
+.comp-btn-home {
+  background: #F0F0F0;
+  color: #666;
+}

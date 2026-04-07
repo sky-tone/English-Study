@@ -1,0 +1,240 @@
+/* teacher.wxss - 教师管理端样式 */
+
+.teacher-page {
+  min-height: 100vh;
+  padding-bottom: 40rpx;
+  background: #F5F7FA;
+}
+
+/* 头部 */
+.teacher-header {
+  display: flex;
+  align-items: center;
+  padding: 40rpx 30rpx;
+  background: linear-gradient(135deg, #27AE60, #2ECC71);
+  gap: 20rpx;
+}
+
+.teacher-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-emoji {
+  font-size: 48rpx;
+}
+
+.teacher-info {
+  flex: 1;
+}
+
+.teacher-title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.teacher-subtitle {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* 快捷操作 */
+.actions-section {
+  padding: 24rpx 20rpx;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin-bottom: 16rpx;
+  padding: 0 10rpx;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+
+.action-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.action-card:active {
+  transform: scale(0.96);
+  background: #F5F7FA;
+}
+
+.action-icon {
+  font-size: 44rpx;
+}
+
+.action-name {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.action-desc {
+  font-size: 20rpx;
+  color: #999;
+}
+
+/* 班级列表 */
+.class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.class-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx;
+  background: #F5F7FA;
+  border-radius: 12rpx;
+}
+
+.class-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.class-name {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.class-count {
+  font-size: 22rpx;
+  color: #999;
+}
+
+.class-status {
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+  background: #E8F8F0;
+}
+
+.status-text {
+  font-size: 22rpx;
+  color: #27AE60;
+}
+
+.empty-class {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 40rpx;
+}
+
+.empty-icon {
+  font-size: 60rpx;
+}
+
+.empty-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* 模块列表 */
+.module-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.module-item {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx;
+  background: #F5F7FA;
+  border-radius: 12rpx;
+}
+
+.module-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.module-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.module-name {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.module-desc {
+  font-size: 22rpx;
+  color: #666;
+}
+
+.module-levels {
+  font-size: 20rpx;
+  color: #999;
+}
+
+.module-action {
+  padding: 8rpx 24rpx;
+  background: #27AE60;
+  color: #fff;
+  border-radius: 16rpx;
+  font-size: 24rpx;
+  flex-shrink: 0;
+}
+
+.module-action:active {
+  opacity: 0.8;
+}
+
+/* Phase 提示 */
+.phase-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+
+.notice-icon {
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.notice-text {
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.6;
+}

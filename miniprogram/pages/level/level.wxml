@@ -1,0 +1,170 @@
+<!--
+  level.wxml - 闯关页面（学生端核心玩法）
+  包含：NPC 对话触发 → 积木控制台 → 句子拼装区 → 词汇背包
+-->
+<view class="level-page">
+  <!-- 顶部信息栏 -->
+  <view class="level-header">
+    <view class="header-left">
+      <text class="level-badge">{{levelData.module}}</text>
+      <text class="level-name">{{levelData.title}}</text>
+    </view>
+    <view class="header-right">
+      <text class="score-label">得分</text>
+      <text class="score-value">{{totalScore}}</text>
+    </view>
+  </view>
+
+  <!-- 任务目标 -->
+  <view class="objectives-bar">
+    <view class="objective-item" wx:for="{{levelData.objectives}}" wx:key="index">
+      <text class="obj-check">{{completedObjectives[index] ? '✅' : '⬜'}}</text>
+      <text class="obj-text">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 句子拼装区域 -->
+  <sentence-area
+    sentenceBlocks="{{currentSentence}}"
+    isDropTarget="{{isDragging}}"
+    completedSentences="{{completedSentences}}"
+    bind:submit="onSentenceSubmit"
+    bind:clear="onSentenceClear"
+    bind:removeblock="onRemoveBlock"
+    bind:validationerror="onValidationError"
+  />
+
+  <!-- 积木控制台 -->
+  <view class="blocks-console">
+    <text class="console-title">🧱 积木控制台 Block Console</text>
+    <text class="console-hint">点击积木添加到句子中</text>
+
+    <!-- 积木分类区域 -->
+    <view class="block-categories">
+      <!-- 🟣 紫色 - 连接词 -->
+      <view class="block-category" wx:if="{{availableBlocks.sequences.length > 0}}">
+        <text class="category-label sequence-label">🟣 连接词 Sequence</text>
+        <view class="block-row">
+          <view
+            class="tap-block sequence-block"
+            wx:for="{{availableBlocks.sequences}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 🟦 蓝色 - 主语 -->
+      <view class="block-category">
+        <text class="category-label subject-label">🟦 主语 Subject</text>
+        <view class="block-row">
+          <view
+            class="tap-block subject-block"
+            wx:for="{{availableBlocks.subjects}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 🟥 红色 - 时态 -->
+      <view class="block-category">
+        <text class="category-label tense-label">🟥 时态 Tense</text>
+        <view class="block-row">
+          <view
+            class="tap-block tense-block"
+            wx:for="{{availableBlocks.tenses}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 🟩 绿色 - 动词 -->
+      <view class="block-category">
+        <text class="category-label verb-label">🟩 动词 Verb</text>
+        <view class="block-row">
+          <view
+            class="tap-block verb-block"
+            wx:for="{{availableBlocks.verbs}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 🟨 黄色 - 时间 -->
+      <view class="block-category" wx:if="{{availableBlocks.times.length > 0}}">
+        <text class="category-label time-label">🟨 时间 Time</text>
+        <view class="block-row">
+          <view
+            class="tap-block time-block"
+            wx:for="{{availableBlocks.times}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 词汇背包 -->
+  <backpack
+    words="{{vocabularyWords}}"
+    bind:wordtap="onVocabTap"
+  />
+
+  <!-- NPC 对话 -->
+  <npc-dialog
+    visible="{{showNpcDialog}}"
+    npcId="{{levelData.trigger.character}}"
+    npcName="{{npcName}}"
+    message="{{levelData.trigger.message}}"
+    subMessage="{{levelData.trigger.subMessage}}"
+    bind:dismiss="onNpcDismiss"
+  />
+
+  <!-- 关卡完成弹窗 -->
+  <view class="completion-modal {{showCompletion ? 'visible' : ''}}" wx:if="{{showCompletion}}">
+    <view class="completion-overlay" bindtap="closeCompletion"></view>
+    <view class="completion-content">
+      <text class="completion-emoji">🎉</text>
+      <text class="completion-title">太棒了！Level Complete!</text>
+      <text class="completion-score">得分：{{totalScore}}</text>
+      <view class="completion-sentences">
+        <text class="comp-sent" wx:for="{{completedSentences}}" wx:key="index">{{index + 1}}. {{item}}</text>
+      </view>
+      <view class="completion-actions">
+        <view class="comp-btn comp-btn-retry" bindtap="retryLevel">
+          <text>🔄 再试一次</text>
+        </view>
+        <view class="comp-btn comp-btn-next" bindtap="nextLevel" wx:if="{{hasNextLevel}}">
+          <text>▶ 下一关</text>
+        </view>
+        <view class="comp-btn comp-btn-home" bindtap="goHome">
+          <text>🏠 回首页</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

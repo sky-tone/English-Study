@@ -1,0 +1,112 @@
+<!--
+  parent.wxml - 家长中心
+  功能：查看五维学情雷达图、一键导出错题卷（VIP）
+-->
+<view class="parent-page">
+  <!-- 头部 -->
+  <view class="parent-header">
+    <view class="parent-avatar">
+      <text class="avatar-emoji">👩</text>
+    </view>
+    <view class="parent-info">
+      <text class="parent-title">家长中心</text>
+      <text class="parent-subtitle">Parent Center</text>
+    </view>
+    <view class="vip-badge {{isVip ? 'active' : ''}}">
+      <text>{{isVip ? '👑 VIP' : '免费版'}}</text>
+    </view>
+  </view>
+
+  <!-- 学生绑定状态 -->
+  <view class="bind-section card">
+    <view class="bind-header">
+      <text class="bind-title">👦 绑定学生</text>
+      <view class="bind-status {{studentBound ? 'bound' : ''}}">
+        <text>{{studentBound ? '已绑定' : '未绑定'}}</text>
+      </view>
+    </view>
+    <view class="bind-info" wx:if="{{studentBound}}">
+      <text class="bind-name">学生：小明</text>
+      <text class="bind-class">班级：五年级(3)班</text>
+      <text class="bind-school">学校：广州理工实验学校</text>
+    </view>
+    <view class="bind-action" wx:else>
+      <view class="btn-primary" bindtap="bindStudent">
+        <text>扫码绑定学生账号</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 五维学情雷达图 (免费) -->
+  <view class="card">
+    <radar-chart radarData="{{radarData}}" />
+  </view>
+
+  <!-- 学习统计 -->
+  <view class="stats-section card">
+    <text class="stats-title">📈 学习统计</text>
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-value">{{stats.totalSentences}}</text>
+        <text class="stat-label">造句总数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.totalErrors}}</text>
+        <text class="stat-label">错误次数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.accuracy}}%</text>
+        <text class="stat-label">正确率</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{stats.levelsCompleted}}</text>
+        <text class="stat-label">完成关卡</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 错题列表预览 -->
+  <view class="errors-section card">
+    <view class="errors-header">
+      <text class="errors-title">📝 近期错题</text>
+      <text class="errors-count">共 {{errorList.length}} 题</text>
+    </view>
+    <view class="error-item" wx:for="{{errorList}}" wx:key="index" wx:if="{{index < 5}}">
+      <view class="error-type-badge" style="background-color: {{item.color}}">
+        <text>{{item.typeLabel}}</text>
+      </view>
+      <text class="error-context">{{item.context}}</text>
+    </view>
+    <view class="no-errors" wx:if="{{errorList.length === 0}}">
+      <text>暂无错题记录，开始练习吧！</text>
+    </view>
+  </view>
+
+  <!-- VIP 导出功能 -->
+  <view class="export-section card">
+    <view class="export-header">
+      <text class="export-title">🖨️ 一键导出巩固测试卷</text>
+      <view class="vip-tag">
+        <text>{{isVip ? '可用' : 'VIP'}}</text>
+      </view>
+    </view>
+    <text class="export-desc">
+      基于孩子的薄弱点，智能生成《广州理工实验学校五年级英语周小结》格式的 A4 巩固测试卷。
+    </text>
+
+    <view wx:if="{{isVip}}">
+      <view class="btn-primary export-btn" bindtap="exportPDF">
+        <text>📄 生成并导出 PDF</text>
+      </view>
+    </view>
+    <view wx:else>
+      <view class="vip-promo">
+        <text class="vip-price">¥15/月</text>
+        <text class="vip-features">解锁智能组卷 · 打印错题卷 · 详细分析报告</text>
+        <view class="btn-primary vip-btn" bindtap="subscribeVip">
+          <text>👑 开通 VIP</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
