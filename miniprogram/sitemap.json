@@ -3,7 +3,19 @@
   "rules": [
     {
       "action": "allow",
-      "page": "*"
+      "page": "pages/index/index"
+    },
+    {
+      "action": "allow",
+      "page": "pages/level/level"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/parent/parent"
+    },
+    {
+      "action": "disallow",
+      "page": "pages/teacher/teacher"
     }
   ]
 }

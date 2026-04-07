@@ -77,7 +77,7 @@ Page({
     this.setData({
       radarData,
       stats: {
-        totalSentences: Math.max(totalSentences, totalErrors),
+        totalSentences,
         totalErrors,
         accuracy: Math.max(0, accuracy),
         levelsCompleted

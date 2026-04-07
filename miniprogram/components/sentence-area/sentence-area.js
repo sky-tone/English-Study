@@ -31,9 +31,15 @@ Component({
 
   observers: {
     'sentenceBlocks': function(blocks) {
-      // 更新预览文本
-      const preview = blocks.map(b => b.word).join(' ') + (blocks.length > 0 ? '.' : '');
-      this.setData({ previewText: preview });
+      // 更新预览文本（避免在连接词逗号后重复添加句号）
+      if (blocks.length === 0) {
+        this.setData({ previewText: '' });
+        return;
+      }
+      const text = blocks.map(b => b.word).join(' ');
+      const lastChar = text.trim().slice(-1);
+      const needsPeriod = lastChar !== '.' && lastChar !== ',' && lastChar !== '!' && lastChar !== '?';
+      this.setData({ previewText: text + (needsPeriod ? '.' : '') });
     }
   },
 

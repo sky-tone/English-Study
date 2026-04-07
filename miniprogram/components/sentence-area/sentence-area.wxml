@@ -33,7 +33,7 @@
       <view
         class="placed-block"
         wx:for="{{sentenceBlocks}}"
-        wx:key="id"
+        wx:key="instanceId"
         style="background-color: {{item.color}}"
         data-index="{{index}}"
         bindlongpress="onBlockLongPress"

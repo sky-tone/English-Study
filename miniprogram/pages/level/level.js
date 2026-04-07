@@ -91,7 +91,7 @@ Page({
     if (!block) return;
 
     // 创建积木副本（避免引用问题）
-    const newBlock = { ...block, instanceId: `${block.id}_${Date.now()}` };
+    const newBlock = { ...block, instanceId: `${block.id}_${Date.now()}_${Math.random().toString(36).slice(2, 7)}` };
 
     // 执行碰撞检测
     const insertIndex = this.data.currentSentence.length;
@@ -171,6 +171,9 @@ Page({
       totalScore: newScore
     });
 
+    // 持久化已完成的句子到本地存储
+    wx.setStorageSync('completedSentences', completed);
+
     // 检查目标
     this.checkObjectives();
 
@@ -248,6 +251,11 @@ Page({
     const minSentences = levelData.minSentences || 1;
 
     if (completedSentences.length >= minSentences && totalScore >= levelData.passScore) {
+      // 更新并持久化已完成关卡数
+      const prevCompleted = wx.getStorageSync('levelsCompleted') || 0;
+      const levelsCompleted = Math.max(prevCompleted, this.data.levelIndex + 1);
+      wx.setStorageSync('levelsCompleted', levelsCompleted);
+
       // 延迟显示完成弹窗
       setTimeout(() => {
         this.setData({ showCompletion: true });

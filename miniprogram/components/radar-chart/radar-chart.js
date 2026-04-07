@@ -35,20 +35,20 @@ Component({
 
   lifetimes: {
     attached() {
-      // 获取屏幕宽度适配
-      const systemInfo = wx.getWindowInfo();
-      const canvasSize = Math.min(systemInfo.windowWidth * 0.7, 280);
+      // 获取屏幕宽度适配（兼容低版本基础库）
+      const sysInfo = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      const canvasSize = Math.min(sysInfo.windowWidth * 0.7, 280);
       this.setData({
         canvasWidth: canvasSize,
         canvasHeight: canvasSize
       });
 
       this.updateDimensions(this.properties.radarData);
+    },
 
-      // 延迟绘制确保 canvas 准备好
-      setTimeout(() => {
-        this.drawRadar(this.properties.radarData);
-      }, 300);
+    ready() {
+      // Canvas 节点在 ready 之后才一定可用
+      this.drawRadar(this.properties.radarData);
     }
   },
 
@@ -98,7 +98,7 @@ Component({
 
           const canvas = res[0].node;
           const ctx = canvas.getContext('2d');
-          const dpr = wx.getWindowInfo().pixelRatio;
+          const dpr = (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()).pixelRatio;
 
           canvas.width = this.data.canvasWidth * dpr;
           canvas.height = this.data.canvasHeight * dpr;

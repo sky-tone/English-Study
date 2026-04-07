@@ -34,6 +34,16 @@ App({
     if (studentId) {
       this.globalData.studentId = studentId;
     }
+
+    // 恢复持久化的错题日志和雷达数据
+    const savedErrorLog = wx.getStorageSync('errorLog');
+    if (savedErrorLog && Array.isArray(savedErrorLog)) {
+      this.globalData.errorLog = savedErrorLog;
+    }
+    const savedRadarData = wx.getStorageSync('radarData');
+    if (savedRadarData) {
+      this.globalData.radarData = savedRadarData;
+    }
   },
 
   /**
@@ -59,32 +69,19 @@ App({
     wx.setStorageSync('errorLog', this.globalData.errorLog);
   },
 
-  updateRadarData(errorType) {
+  updateRadarData(_errorType) {
+    const errorLog = this.globalData.errorLog;
+    const totalErrors = errorLog.length || 1;
     const data = this.globalData.radarData;
-    const totalErrors = this.globalData.errorLog.length || 1;
 
-    // 计算各维度错误率（0-100）
-    const typeCount = this.globalData.errorLog.filter(e => e.type === errorType).length;
-    const rate = Math.min(100, Math.round((typeCount / totalErrors) * 100));
+    // 重新计算所有维度的错误率（0-100），避免单维度更新导致数据不一致
+    const types = ['spelling', 'grammar', 'structure', 'pragmatics', 'phonics'];
+    types.forEach(type => {
+      const typeCount = errorLog.filter(e => e.type === type).length;
+      data[type] = Math.min(100, Math.round((typeCount / totalErrors) * 100));
+    });
 
-    switch (errorType) {
-      case 'spelling':
-        data.spelling = rate;
-        break;
-      case 'grammar':
-        data.grammar = rate;
-        break;
-      case 'structure':
-        data.structure = rate;
-        break;
-      case 'pragmatics':
-        data.pragmatics = rate;
-        break;
-      case 'phonics':
-        data.phonics = rate;
-        break;
-    }
-
+    this.globalData.radarData = data;
     wx.setStorageSync('radarData', data);
   }
 });
