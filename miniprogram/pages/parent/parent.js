@@ -1,8 +1,9 @@
 /**
  * parent.js - 家长中心页面
- * 功能：五维雷达图 + 学习统计 + VIP 导出错题卷
+ * 功能：五维雷达图 + 学习统计 + VIP 导出错题卷 + 拍照上传练习资料
  */
 const { generatePDFData, generateExercises } = require('../../utils/error-tracker');
+const { choosePhoto, getPhotos, deletePhoto, clearPhotos, previewPhoto } = require('../../utils/photo-uploader');
 
 Page({
   data: {
@@ -21,7 +22,8 @@ Page({
       accuracy: 100,
       levelsCompleted: 0
     },
-    errorList: []
+    errorList: [],
+    uploadedPhotos: []
   },
 
   onLoad() {
@@ -82,7 +84,8 @@ Page({
         accuracy: Math.max(0, accuracy),
         levelsCompleted
       },
-      errorList
+      errorList,
+      uploadedPhotos: getPhotos('parent')
     });
   },
 
@@ -156,5 +159,64 @@ Page({
         confirmText: '知道了'
       });
     }, 1500);
+  },
+
+  /**
+   * 拍照上传练习资料
+   */
+  uploadPhoto() {
+    choosePhoto({ role: 'parent', maxPhotos: 9 }).then(result => {
+      if (result.success) {
+        this.setData({ uploadedPhotos: getPhotos('parent') });
+        wx.showToast({ title: result.message, icon: 'success' });
+      } else if (result.message) {
+        wx.showToast({ title: result.message, icon: 'none' });
+      }
+    });
+  },
+
+  /**
+   * 预览照片
+   */
+  onPreviewPhoto(e) {
+    const url = e.currentTarget.dataset.url;
+    const urls = this.data.uploadedPhotos.map(p => p.path);
+    previewPhoto(url, urls);
+  },
+
+  /**
+   * 删除照片
+   */
+  onDeletePhoto(e) {
+    const photoId = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '删除照片',
+      content: '确定要删除这张照片吗？',
+      success: (res) => {
+        if (res.confirm) {
+          deletePhoto('parent', photoId);
+          this.setData({ uploadedPhotos: getPhotos('parent') });
+          wx.showToast({ title: '已删除', icon: 'success' });
+        }
+      }
+    });
+  },
+
+  /**
+   * 清空所有照片
+   */
+  onClearPhotos() {
+    if (this.data.uploadedPhotos.length === 0) return;
+    wx.showModal({
+      title: '清空照片',
+      content: '确定要清空所有已上传的练习资料照片吗？',
+      success: (res) => {
+        if (res.confirm) {
+          clearPhotos('parent');
+          this.setData({ uploadedPhotos: [] });
+          wx.showToast({ title: '已清空', icon: 'success' });
+        }
+      }
+    });
   }
 });

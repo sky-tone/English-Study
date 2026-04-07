@@ -86,6 +86,45 @@
     </view>
   </view>
 
+  <!-- 拍照上传练习资料 -->
+  <view class="upload-section card">
+    <view class="upload-header">
+      <text class="upload-title">📷 上传练习资料</text>
+      <text class="upload-count" wx:if="{{uploadedPhotos.length > 0}}">{{uploadedPhotos.length}}/9</text>
+    </view>
+    <text class="upload-desc">拍照或从相册上传练习题、试卷等教学资料，方便班级管理和分享。</text>
+
+    <view class="photo-grid">
+      <view
+        class="photo-item"
+        wx:for="{{uploadedPhotos}}"
+        wx:key="id"
+      >
+        <image
+          class="photo-img"
+          src="{{item.path}}"
+          mode="aspectFill"
+          bindtap="onPreviewPhoto"
+          data-url="{{item.path}}"
+        />
+        <view class="photo-delete" catchtap="onDeletePhoto" data-id="{{item.id}}">
+          <text>×</text>
+        </view>
+      </view>
+
+      <view class="photo-add" bindtap="uploadPhoto" wx:if="{{uploadedPhotos.length < 9}}">
+        <text class="add-icon">📷</text>
+        <text class="add-text">拍照/相册</text>
+      </view>
+    </view>
+
+    <view class="upload-actions" wx:if="{{uploadedPhotos.length > 0}}">
+      <view class="btn-clear" bindtap="onClearPhotos">
+        <text>🗑️ 清空全部</text>
+      </view>
+    </view>
+  </view>
+
   <!-- Phase 2 提示 -->
   <view class="phase-notice card">
     <text class="notice-icon">🔧</text>

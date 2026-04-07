@@ -342,6 +342,28 @@ function validateSentence(sentence) {
     warnings.push('句子可能缺少时态词（红色积木）');
   }
 
+  // ---- 语法规则校验 ----
+
+  // 规则G1: Be动词主语一致性
+  const beVerbErrors = validateBeVerbAgreement(sentence);
+  errors.push(...beVerbErrors);
+
+  // 规则G2: will + 动词原形
+  const willErrors = validateWillVerbForm(sentence);
+  errors.push(...willErrors);
+
+  // 规则G3: be going to + 动词原形
+  const beGoingToErrors = validateBeGoingToVerbForm(sentence);
+  errors.push(...beGoingToErrors);
+
+  // 规则G3b: "going to" 前必须有正确的 be 动词
+  const beGoingToBeVerbErrors = validateBeGoingToBeVerb(sentence);
+  errors.push(...beGoingToBeVerbErrors);
+
+  // 规则G4: Use...to... 结构完整性
+  const useToErrors = validateUseToStructure(sentence);
+  errors.push(...useToErrors);
+
   // 检查连贯写作中是否使用了连接词
   const hasSequence = sentence.some(b => b.type === BlockType.SEQUENCE);
 
@@ -352,6 +374,134 @@ function validateSentence(sentence) {
     hasSequence,
     score: calculateScore(sentence, errors, warnings)
   };
+}
+
+/**
+ * 规则G1: 验证Be动词与主语一致性
+ * 例如: "I is" → 错误, "I am" → 正确
+ */
+function validateBeVerbAgreement(sentence) {
+  const errors = [];
+  const beVerbs = ['am', 'is', 'are'];
+
+  const subjectBlock = sentence.find(b => b.type === BlockType.SUBJECT);
+  if (!subjectBlock) return errors;
+
+  const beVerbBlocks = sentence.filter(b =>
+    b.type === BlockType.TENSE && beVerbs.includes(b.word.toLowerCase())
+  );
+
+  for (const beBlock of beVerbBlocks) {
+    const allowed = BE_VERB_RULES[subjectBlock.word];
+    if (allowed && !allowed.includes(beBlock.word.toLowerCase())) {
+      const correct = allowed[0];
+      errors.push(`"${subjectBlock.word}" 要搭配 "${correct}"，不能用 "${beBlock.word}"`);
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * 规则G2: 验证 will 后面必须跟动词原形
+ * 例如: "will swimming" → 错误, "will travel" → 正确
+ */
+function validateWillVerbForm(sentence) {
+  const errors = [];
+
+  for (let i = 0; i < sentence.length; i++) {
+    if (sentence[i].type === BlockType.TENSE && sentence[i].word.toLowerCase() === 'will') {
+      const nextBlock = sentence[i + 1];
+      if (nextBlock && nextBlock.type === BlockType.VERB &&
+          nextBlock.verbForm && !WILL_ACCEPTS.includes(nextBlock.verbForm)) {
+        errors.push(`"will" 后面要跟动词原形，不能用 "${nextBlock.word}"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * 规则G3: 验证 be going to 后面必须跟动词原形
+ * 例如: "am going to swimming" → 错误, "am going to travel" → 正确
+ */
+function validateBeGoingToVerbForm(sentence) {
+  const errors = [];
+
+  for (let i = 0; i < sentence.length; i++) {
+    if (sentence[i].word.toLowerCase() === 'going to' ||
+        sentence[i].tenseGroup === 'be_going_to') {
+      const nextBlock = sentence[i + 1];
+      if (nextBlock && nextBlock.type === BlockType.VERB &&
+          nextBlock.verbForm && !BE_GOING_TO_ACCEPTS.includes(nextBlock.verbForm)) {
+        errors.push(`"be going to" 后面要跟动词原形，不能用 "${nextBlock.word}"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * 规则G3b: 验证 "going to" 前面必须有正确的 be 动词
+ * 例如: "I going to visit" → 错误（缺少 am）, "I am going to visit" → 正确
+ */
+function validateBeGoingToBeVerb(sentence) {
+  const errors = [];
+  const beVerbs = ['am', 'is', 'are'];
+
+  for (let i = 0; i < sentence.length; i++) {
+    if (sentence[i].word.toLowerCase() === 'going to' ||
+        sentence[i].tenseGroup === 'be_going_to') {
+      // 检查前面是否紧跟一个 be 动词
+      const prevBlock = sentence[i - 1];
+      const hasBeVerb = prevBlock &&
+        prevBlock.type === BlockType.TENSE &&
+        beVerbs.includes(prevBlock.word.toLowerCase());
+
+      if (!hasBeVerb) {
+        // 查找主语以给出正确的 be 动词提示
+        const subjectBlock = sentence.find(b => b.type === BlockType.SUBJECT);
+        const correctVerb = subjectBlock && BE_VERB_RULES[subjectBlock.word]
+          ? BE_VERB_RULES[subjectBlock.word][0]
+          : 'am/is/are';
+        errors.push(`"going to" 前面要加 "${correctVerb}"，如 "${correctVerb} going to"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * 规则G4: 验证 Use...to... 结构完整性
+ * Use 后面应跟名词工具，to 后面应跟动词
+ */
+function validateUseToStructure(sentence) {
+  const errors = [];
+
+  const useIndex = sentence.findIndex(b =>
+    b.word.toLowerCase() === 'use' && b.type === BlockType.VERB
+  );
+  if (useIndex === -1) return errors;
+
+  // Use 后面必须是名词工具（名词工具在数据模型中类型为 VERB，verbForm 为 NOUN）
+  const afterUse = sentence[useIndex + 1];
+  if (afterUse && afterUse.type === BlockType.VERB && afterUse.verbForm !== VerbForm.NOUN) {
+    errors.push('"Use" 后面要跟工具名称（名词）');
+  }
+
+  // to 后面必须是动词
+  const toIndex = sentence.findIndex(b => b.word.toLowerCase() === 'to');
+  if (toIndex !== -1) {
+    const afterTo = sentence[toIndex + 1];
+    if (afterTo && afterTo.type !== BlockType.VERB) {
+      errors.push('"to" 后面要跟动作动词');
+    }
+  }
+
+  return errors;
 }
 
 /**
@@ -380,5 +530,10 @@ module.exports = {
   checkBeGoingToConstraint,
   checkUseToConstraint,
   validateSentence,
+  validateBeVerbAgreement,
+  validateWillVerbForm,
+  validateBeGoingToVerbForm,
+  validateBeGoingToBeVerb,
+  validateUseToStructure,
   calculateScore
 };

@@ -22,6 +22,11 @@ const {
   checkBeGoingToConstraint,
   checkUseToConstraint,
   validateSentence,
+  validateBeVerbAgreement,
+  validateWillVerbForm,
+  validateBeGoingToVerbForm,
+  validateBeGoingToBeVerb,
+  validateUseToStructure,
   calculateScore
 } = require('../collision');
 
@@ -457,10 +462,291 @@ describe('validateSentence', () => {
     const result = validateSentence(sentence);
     expect(result.hasSequence).toBe(false);
   });
+
+  // ---- Grammar validation on submit ----
+
+  test('I + is → invalid (be-verb agreement error)', () => {
+    const sentence = [subjectI(), tenseIs(), tenseGoingTo(), verbBare()];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('am'))).toBe(true);
+  });
+
+  test('He + are → invalid (be-verb agreement error)', () => {
+    const sentence = [subjectHe(), tenseAre(), tenseGoingTo(), verbBare()];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('is'))).toBe(true);
+  });
+
+  test('I + am → valid (correct be-verb)', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbBare()];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(true);
+  });
+
+  test('will + gerund → invalid on submit', () => {
+    const sentence = [subjectI(), tenseWill(), verbGerund('swimming')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('will') && e.includes('动词原形'))).toBe(true);
+  });
+
+  test('will + past → invalid on submit', () => {
+    const sentence = [subjectI(), tenseWill(), verbPast('went')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('will'))).toBe(true);
+  });
+
+  test('be going to + gerund → invalid on submit', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbGerund('travelling')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('be going to') && e.includes('动词原形'))).toBe(true);
+  });
+
+  test('be going to + bare verb → valid on submit', () => {
+    const sentence = [subjectWe(), tenseAre(), tenseGoingTo(), verbBare('visit the Great Wall')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(true);
+  });
+
+  test('I + going to + visit (missing be-verb) → invalid on submit', () => {
+    const sentence = [subjectI(), tenseGoingTo(), verbBare('visit the Great Wall'), timeBlock('this Saturday')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('am'))).toBe(true);
+    expect(result.score).toBeLessThan(100);
+  });
+
+  test('He + going to + visit (missing be-verb) → invalid on submit', () => {
+    const sentence = [subjectHe(), tenseGoingTo(), verbBare('visit the Great Wall')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('is'))).toBe(true);
+  });
 });
 
 // ============================================================
-// 10. calculateScore
+// 10. validateBeVerbAgreement
+// ============================================================
+describe('validateBeVerbAgreement', () => {
+  test('I + am → no errors', () => {
+    const sentence = [subjectI(), tenseAm()];
+    expect(validateBeVerbAgreement(sentence)).toHaveLength(0);
+  });
+
+  test('I + is → error mentioning "am"', () => {
+    const sentence = [subjectI(), tenseIs()];
+    const errors = validateBeVerbAgreement(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('am');
+  });
+
+  test('He + are → error mentioning "is"', () => {
+    const sentence = [subjectHe(), tenseAre()];
+    const errors = validateBeVerbAgreement(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('is');
+  });
+
+  test('We + are → no errors', () => {
+    const sentence = [subjectWe(), tenseAre()];
+    expect(validateBeVerbAgreement(sentence)).toHaveLength(0);
+  });
+
+  test('no subject → no errors', () => {
+    const sentence = [tenseAm()];
+    expect(validateBeVerbAgreement(sentence)).toHaveLength(0);
+  });
+
+  test('no be-verb (will only) → no errors', () => {
+    const sentence = [subjectI(), tenseWill()];
+    expect(validateBeVerbAgreement(sentence)).toHaveLength(0);
+  });
+
+  test('Ben + is → no errors', () => {
+    const sentence = [subjectBen(), tenseIs()];
+    expect(validateBeVerbAgreement(sentence)).toHaveLength(0);
+  });
+
+  test('My family + is → error mentioning "are"', () => {
+    const sentence = [subjectMyFamily(), tenseIs()];
+    const errors = validateBeVerbAgreement(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('are');
+  });
+});
+
+// ============================================================
+// 11. validateWillVerbForm
+// ============================================================
+describe('validateWillVerbForm', () => {
+  test('will + bare verb → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), verbBare()];
+    expect(validateWillVerbForm(sentence)).toHaveLength(0);
+  });
+
+  test('will + gerund → error', () => {
+    const sentence = [subjectI(), tenseWill(), verbGerund('swimming')];
+    const errors = validateWillVerbForm(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('will');
+    expect(errors[0]).toContain('swimming');
+  });
+
+  test('will + past → error', () => {
+    const sentence = [subjectI(), tenseWill(), verbPast('went')];
+    const errors = validateWillVerbForm(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('went');
+  });
+
+  test('will + verb with no verbForm → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), makeBlock('explore', BlockType.VERB)];
+    expect(validateWillVerbForm(sentence)).toHaveLength(0);
+  });
+
+  test('no will in sentence → no errors', () => {
+    const sentence = [subjectI(), tenseAm(), verbBare()];
+    expect(validateWillVerbForm(sentence)).toHaveLength(0);
+  });
+
+  test('will not followed by verb → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), timeBlock()];
+    expect(validateWillVerbForm(sentence)).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// 12. validateBeGoingToVerbForm
+// ============================================================
+describe('validateBeGoingToVerbForm', () => {
+  test('going to + bare verb → no errors', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToVerbForm(sentence)).toHaveLength(0);
+  });
+
+  test('going to + gerund → error', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbGerund('travelling')];
+    const errors = validateBeGoingToVerbForm(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('be going to');
+    expect(errors[0]).toContain('travelling');
+  });
+
+  test('going to + past → error', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbPast('went')];
+    const errors = validateBeGoingToVerbForm(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('went');
+  });
+
+  test('going to + noun → error', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbNoun('a pencil')];
+    const errors = validateBeGoingToVerbForm(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('a pencil');
+  });
+
+  test('no going to in sentence → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), verbBare()];
+    expect(validateBeGoingToVerbForm(sentence)).toHaveLength(0);
+  });
+
+  test('going to not followed by verb → no errors', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), timeBlock()];
+    expect(validateBeGoingToVerbForm(sentence)).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// 12b. validateBeGoingToBeVerb
+// ============================================================
+describe('validateBeGoingToBeVerb', () => {
+  test('I + am + going to → no errors', () => {
+    const sentence = [subjectI(), tenseAm(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('We + are + going to → no errors', () => {
+    const sentence = [subjectWe(), tenseAre(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('He + is + going to → no errors', () => {
+    const sentence = [subjectHe(), tenseIs(), tenseGoingTo(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('I + going to (missing am) → error', () => {
+    const sentence = [subjectI(), tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('am');
+  });
+
+  test('He + going to (missing is) → error', () => {
+    const sentence = [subjectHe(), tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('is');
+  });
+
+  test('We + going to (missing are) → error', () => {
+    const sentence = [subjectWe(), tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('are');
+  });
+
+  test('no going to in sentence → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), verbBare()];
+    expect(validateBeGoingToBeVerb(sentence)).toHaveLength(0);
+  });
+
+  test('going to at start of sentence (no prev block) → error', () => {
+    const sentence = [tenseGoingTo(), verbBare()];
+    const errors = validateBeGoingToBeVerb(sentence);
+    expect(errors.length).toBe(1);
+  });
+});
+
+// ============================================================
+// 13. validateUseToStructure
+// ============================================================
+describe('validateUseToStructure', () => {
+  const useBlock = () => makeBlock('Use', BlockType.VERB, { verbForm: VerbForm.BARE });
+  const toBlock = () => makeBlock('to', BlockType.VERB, { verbForm: VerbForm.BARE });
+
+  test('Use + noun + to + verb → no errors', () => {
+    const sentence = [useBlock(), verbNoun('a pencil'), toBlock(), verbBare('draw')];
+    expect(validateUseToStructure(sentence)).toHaveLength(0);
+  });
+
+  test('Use + bare verb → error (should be noun)', () => {
+    const sentence = [useBlock(), verbBare('draw')];
+    const errors = validateUseToStructure(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('工具');
+  });
+
+  test('no Use block → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), verbBare()];
+    expect(validateUseToStructure(sentence)).toHaveLength(0);
+  });
+
+  test('"to" + non-verb → error', () => {
+    const sentence = [useBlock(), verbNoun('scissors'), toBlock(), timeBlock()];
+    const errors = validateUseToStructure(sentence);
+    expect(errors.length).toBe(1);
+    expect(errors[0]).toContain('to');
+  });
+});
+
+// ============================================================
+// 14. calculateScore
 // ============================================================
 describe('calculateScore', () => {
   test('perfect sentence → 100', () => {
