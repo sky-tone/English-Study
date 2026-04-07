@@ -13,7 +13,16 @@ const { LEVELS, getBlocksForLevel, NPC_CHARACTERS, VOCABULARY_BACKPACK } = requi
 Page({
   data: {
     levelId: 'level_1',
-    levelData: {},
+    levelData: {
+      module: '',
+      title: '',
+      objectives: [],
+      trigger: {
+        character: '',
+        message: '',
+        subMessage: ''
+      }
+    },
     levelIndex: 0,
     availableBlocks: {
       subjects: [],
@@ -26,7 +35,7 @@ Page({
     completedSentences: [],  // 已完成的句子（文本）
     totalScore: 0,
     isDragging: false,
-    showNpcDialog: true,
+    showNpcDialog: false,
     npcName: 'Aki',
     showCompletion: false,
     hasNextLevel: true,
