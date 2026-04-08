@@ -41,11 +41,19 @@ Page({
   },
 
   /**
+   * 获取错误日志
+   * @returns {Array} errorLog
+   */
+  _getErrorLog() {
+    return wx.getStorageSync('errorLog') || getApp().globalData.errorLog || [];
+  },
+
+  /**
    * 加载错题档案数据
    */
   loadArchiveData() {
     // 获取真实错误日志（如果有的话）
-    const errorLog = wx.getStorageSync('errorLog') || getApp().globalData.errorLog || [];
+    const errorLog = this._getErrorLog();
 
     // 获取完整的 mock 页面数据
     const archiveData = getMistakeArchiveData();
@@ -104,7 +112,7 @@ Page({
       return;
     }
 
-    const errorLog = wx.getStorageSync('errorLog') || getApp().globalData.errorLog || [];
+    const errorLog = this._getErrorLog();
 
     wx.showLoading({ title: '正在生成试卷...' });
 

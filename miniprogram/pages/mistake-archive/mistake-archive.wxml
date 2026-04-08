@@ -99,7 +99,7 @@
             </view>
 
             <!-- 拼写错误列表 -->
-            <view class="spelling-errors" wx:if="{{item.spellingErrors.length > 0}}">
+            <view class="spelling-errors" wx:if="{{item.spellingErrors && item.spellingErrors.length > 0}}">
               <view class="spelling-row" wx:for="{{item.spellingErrors}}" wx:for-item="err" wx:key="correct">
                 <view class="spelling-wrong">
                   <text class="spelling-cross">✗</text>
