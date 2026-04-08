@@ -17,6 +17,10 @@ const {
   VERB_BLOCKS,
   TIME_BLOCKS,
   SEQUENCE_BLOCKS,
+  IMPERATIVE_BLOCKS,
+  SAFETY_VERB_BLOCKS,
+  OBJECT_BLOCKS,
+  ADJECTIVE_BLOCKS,
   LEVELS,
   VOCABULARY_BACKPACK,
   getBlocksForLevel,
@@ -34,7 +38,11 @@ describe('Block data integrity', () => {
     ...TENSE_BLOCKS,
     ...VERB_BLOCKS,
     ...TIME_BLOCKS,
-    ...SEQUENCE_BLOCKS
+    ...SEQUENCE_BLOCKS,
+    ...IMPERATIVE_BLOCKS,
+    ...SAFETY_VERB_BLOCKS,
+    ...OBJECT_BLOCKS,
+    ...ADJECTIVE_BLOCKS
   ];
 
   test('every block has required fields: id, word, type, color', () => {
@@ -86,9 +94,10 @@ describe('Block data integrity', () => {
   });
 
   test('verb blocks have verbForm defined', () => {
-    for (const block of VERB_BLOCKS) {
+    const allVerbBlocks = [...VERB_BLOCKS, ...SAFETY_VERB_BLOCKS];
+    for (const block of allVerbBlocks) {
       expect(block.verbForm).toBeDefined();
-      expect([VerbForm.BARE, VerbForm.GERUND, VerbForm.PAST, VerbForm.NOUN]).toContain(block.verbForm);
+      expect([VerbForm.BARE, VerbForm.GERUND, VerbForm.PAST, VerbForm.NOUN, VerbForm.THIRD_PERSON]).toContain(block.verbForm);
     }
   });
 
@@ -181,7 +190,11 @@ describe('Level configurations', () => {
       ...TENSE_BLOCKS.map(b => b.id),
       ...VERB_BLOCKS.map(b => b.id),
       ...TIME_BLOCKS.map(b => b.id),
-      ...SEQUENCE_BLOCKS.map(b => b.id)
+      ...SEQUENCE_BLOCKS.map(b => b.id),
+      ...IMPERATIVE_BLOCKS.map(b => b.id),
+      ...SAFETY_VERB_BLOCKS.map(b => b.id),
+      ...OBJECT_BLOCKS.map(b => b.id),
+      ...ADJECTIVE_BLOCKS.map(b => b.id)
     ]);
 
     for (const level of LEVELS) {
@@ -190,7 +203,10 @@ describe('Level configurations', () => {
         ...level.availableBlocks.tenses,
         ...level.availableBlocks.verbs,
         ...level.availableBlocks.times,
-        ...level.availableBlocks.sequences
+        ...level.availableBlocks.sequences,
+        ...(level.availableBlocks.imperatives || []),
+        ...(level.availableBlocks.objects || []),
+        ...(level.availableBlocks.adjectives || [])
       ];
       for (const ref of refs) {
         expect(allBlockIds.has(ref)).toBe(true);

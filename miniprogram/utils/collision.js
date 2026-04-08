@@ -14,7 +14,10 @@ const BlockType = {
   TENSE: 'tense',           // 🟥 红色 - 时态核心
   VERB: 'verb',             // 🟩 绿色 - 动词短语
   TIME: 'time',             // 🟨 黄色 - 时间状语
-  SEQUENCE: 'sequence'      // 🟣 紫色 - 顺序连接词
+  SEQUENCE: 'sequence',     // 🟣 紫色 - 顺序连接词
+  IMPERATIVE: 'imperative', // 🟥 红色 - 祈使句引擎 (Don't, Do, Be, You must)
+  OBJECT: 'object',         // 🟨 黄色 - 危险物品/地点
+  ADJECTIVE: 'adjective'    // 🟣 紫色 - 条件/状态后缀
 };
 
 // 积木颜色映射
@@ -23,7 +26,10 @@ const BlockColor = {
   [BlockType.TENSE]: '#E74C3C',
   [BlockType.VERB]: '#27AE60',
   [BlockType.TIME]: '#F39C12',
-  [BlockType.SEQUENCE]: '#9B59B6'
+  [BlockType.SEQUENCE]: '#9B59B6',
+  [BlockType.IMPERATIVE]: '#E74C3C',
+  [BlockType.OBJECT]: '#F39C12',
+  [BlockType.ADJECTIVE]: '#9B59B6'
 };
 
 // 动词形式类型
@@ -31,7 +37,8 @@ const VerbForm = {
   BARE: 'bare',           // 动词原形 (go, travel, visit)
   GERUND: 'gerund',       // 动名词/进行时 (going, swimming)
   PAST: 'past',           // 过去式 (went, traveled)
-  NOUN: 'noun'            // 名词 (a pencil, scissors)
+  NOUN: 'noun',           // 名词 (a pencil, scissors)
+  THIRD_PERSON: 'third_person'  // 第三人称单数 (runs, crosses)
 };
 
 // Be动词主语匹配规则
@@ -105,6 +112,24 @@ function checkCollision(existingBlock, newBlock, currentSentence, insertIndex) {
   const orderResult = checkBasicOrder(currentSentence, newBlock, insertIndex);
   if (orderResult && !orderResult.accepted) {
     return orderResult;
+  }
+
+  // 规则6: Don't / Do + 动词原形约束
+  const dontResult = checkImperativeDontConstraint(currentSentence, newBlock, insertIndex);
+  if (dontResult && !dontResult.accepted) {
+    return dontResult;
+  }
+
+  // 规则7: Be + 形容词约束（拒绝动词）
+  const beAdjResult = checkImperativeBeConstraint(currentSentence, newBlock, insertIndex);
+  if (beAdjResult && !beAdjResult.accepted) {
+    return beAdjResult;
+  }
+
+  // 规则8: 祈使句逻辑冲突检测（Do + 危险动作 = 剧情失败）
+  const logicResult = checkImperativeLogicConflict(currentSentence, newBlock, insertIndex);
+  if (logicResult) {
+    return logicResult;
   }
 
   // 如果语序检查返回了提示消息（accepted 但有 tip），传递该消息
@@ -322,8 +347,11 @@ function validateSentence(sentence) {
   // 检查是否有主语
   const hasSubject = sentence.some(b => b.type === BlockType.SUBJECT);
   if (!hasSubject) {
-    // 祈使句除外
-    const isImperative = sentence[0] && sentence[0].word.toLowerCase() === 'use';
+    // 祈使句除外（Use..., Don't..., Do..., Be...)
+    const isImperative = sentence[0] && (
+      sentence[0].word.toLowerCase() === 'use' ||
+      sentence[0].type === BlockType.IMPERATIVE
+    );
     if (!isImperative) {
       errors.push('句子缺少主语（蓝色积木）');
     }
@@ -332,12 +360,20 @@ function validateSentence(sentence) {
   // 检查是否有动词
   const hasVerb = sentence.some(b => b.type === BlockType.VERB);
   if (!hasVerb) {
-    errors.push('句子缺少动词（绿色积木）');
+    // Be + adjective 祈使句不需要动词
+    const isBeImperative = sentence[0] &&
+      sentence[0].type === BlockType.IMPERATIVE && sentence[0].word === 'Be';
+    if (!isBeImperative) {
+      errors.push('句子缺少动词（绿色积木）');
+    }
   }
 
   // 检查是否有时态词（非祈使句）
   const hasTense = sentence.some(b => b.type === BlockType.TENSE);
-  const isImperative = sentence[0] && sentence[0].word.toLowerCase() === 'use';
+  const isImperative = sentence[0] && (
+    sentence[0].word.toLowerCase() === 'use' ||
+    sentence[0].type === BlockType.IMPERATIVE
+  );
   if (!hasTense && hasSubject && !isImperative) {
     warnings.push('句子可能缺少时态词（红色积木）');
   }
@@ -363,6 +399,18 @@ function validateSentence(sentence) {
   // 规则G4: Use...to... 结构完整性
   const useToErrors = validateUseToStructure(sentence);
   errors.push(...useToErrors);
+
+  // 规则G5: 祈使句 Don't/Do + 动词原形
+  const imperativeVerbErrors = validateImperativeVerbForm(sentence);
+  errors.push(...imperativeVerbErrors);
+
+  // 规则G6: 祈使句 Be + 形容词
+  const imperativeBeErrors = validateImperativeBeAdjective(sentence);
+  errors.push(...imperativeBeErrors);
+
+  // 规则G7: 祈使句逻辑冲突（Do + 危险动作）
+  const logicConflictWarnings = validateImperativeLogicConflict(sentence);
+  warnings.push(...logicConflictWarnings);
 
   // 检查连贯写作中是否使用了连接词
   const hasSequence = sentence.some(b => b.type === BlockType.SEQUENCE);
@@ -519,6 +567,233 @@ function calculateScore(sentence, errors, warnings) {
   return Math.max(0, Math.min(100, score));
 }
 
+// ============================================================
+// Module 5 Safety - 祈使句碰撞规则
+// ============================================================
+
+/**
+ * 规则6: Don't / Do + 动词原形约束
+ * Don't 后面只能接动词原形（绿色积木），拒绝 gerund/past/noun
+ * Do 后面也只能接动词原形
+ */
+function checkImperativeDontConstraint(sentence, newBlock, insertIndex) {
+  // 只在新积木是动词时检查
+  if (newBlock.type !== BlockType.VERB) return null;
+
+  // 查找句子中的 Don't / Do 祈使句引擎
+  const imperativeBlock = sentence.find(b =>
+    b.type === BlockType.IMPERATIVE &&
+    (b.word === "Don't" || b.word === 'Do')
+  );
+  if (!imperativeBlock) return null;
+
+  const imperativeIndex = sentence.indexOf(imperativeBlock);
+
+  // 检查新积木是否紧跟在 Don't/Do 后面
+  if (insertIndex !== imperativeIndex + 1) return null;
+
+  if (newBlock.verbForm && newBlock.verbForm !== VerbForm.BARE) {
+    return {
+      accepted: false,
+      message: `"${imperativeBlock.word}" 后面必须跟着原形好帮手哦！\n"${imperativeBlock.word}" must be followed by a base verb!`,
+      errorType: 'grammar',
+      errorSubType: 'imperative_verb_form',
+      hint: `${imperativeBlock.word} + 动词原形 (e.g., ${imperativeBlock.word} run)`,
+      detail: {
+        imperative: imperativeBlock.word,
+        attempted: newBlock.word,
+        verbForm: newBlock.verbForm
+      }
+    };
+  }
+
+  return { accepted: true, message: '' };
+}
+
+/**
+ * 规则7: Be + 形容词约束
+ * Be 引擎右侧只能吸附形容词（紫色 ADJECTIVE），拒绝绿色动词积木
+ */
+function checkImperativeBeConstraint(sentence, newBlock, insertIndex) {
+  // 查找 Be 祈使句引擎
+  const beBlock = sentence.find(b =>
+    b.type === BlockType.IMPERATIVE && b.word === 'Be'
+  );
+  if (!beBlock) return null;
+
+  const beIndex = sentence.indexOf(beBlock);
+
+  // 检查新积木是否紧跟在 Be 后面
+  if (insertIndex !== beIndex + 1) return null;
+
+  // Be 后面只能接形容词
+  if (newBlock.type === BlockType.VERB) {
+    return {
+      accepted: false,
+      message: `Be 动词后面要接状态（如 careful）！\n"Be" must be followed by an adjective!`,
+      errorType: 'grammar',
+      errorSubType: 'imperative_be_adjective',
+      hint: `Be + 形容词 (e.g., Be careful)`,
+      detail: {
+        attempted: newBlock.word,
+        attemptedType: newBlock.type
+      }
+    };
+  }
+
+  if (newBlock.type === BlockType.OBJECT) {
+    return {
+      accepted: false,
+      message: `Be 动词后面要接状态（如 careful）！\n"Be" must be followed by an adjective!`,
+      errorType: 'grammar',
+      errorSubType: 'imperative_be_adjective',
+      hint: `Be + 形容词 (e.g., Be careful)`,
+      detail: {
+        attempted: newBlock.word,
+        attemptedType: newBlock.type
+      }
+    };
+  }
+
+  if (newBlock.type !== BlockType.ADJECTIVE) {
+    return {
+      accepted: false,
+      message: `Be 动词后面要接状态（如 careful）！\n"Be" must be followed by an adjective!`,
+      errorType: 'grammar',
+      errorSubType: 'imperative_be_adjective',
+      hint: `Be + 形容词 (e.g., Be careful)`,
+      detail: {
+        attempted: newBlock.word,
+        attemptedType: newBlock.type
+      }
+    };
+  }
+
+  return { accepted: true, message: '' };
+}
+
+/**
+ * 规则8: 祈使句逻辑冲突检测
+ * 当 [ Do ] + [ feed ] + [ the animals ] 语法正确但违背安全逻辑
+ * 积木组合成功但触发失败动画（accepted: true + logicConflict）
+ */
+function checkImperativeLogicConflict(sentence, newBlock, insertIndex) {
+  // 构建预期句子（含新积木）
+  const projected = [...sentence];
+  projected.splice(insertIndex, 0, newBlock);
+
+  // 查找 "Do"（非 Don't）祈使句引擎
+  const doBlock = projected.find(b =>
+    b.type === BlockType.IMPERATIVE && b.word === 'Do'
+  );
+  if (!doBlock) return null;
+
+  // 危险动作列表 — Do + 这些动作 = 逻辑冲突
+  const dangerousActions = [
+    { verb: 'feed', object: 'the animals', failMessage: 'Oh no! You must not feed the animals!' },
+    { verb: 'cross', object: 'when the traffic light is red', failMessage: 'Oh no! You must not cross when the light is red!' },
+    { verb: 'run', object: 'near the hot water', failMessage: 'Oh no! You must not run near the hot water!' },
+    { verb: 'climb', object: 'tall trees', failMessage: 'Oh no! You must not climb tall trees!' },
+    { verb: 'touch', object: 'a fan', failMessage: 'Oh no! You must not touch the fan!' }
+  ];
+
+  // 获取 Do 后面的动词和宾语
+  const doIndex = projected.indexOf(doBlock);
+  const verbAfterDo = projected[doIndex + 1];
+  const objectAfterVerb = projected[doIndex + 2];
+
+  if (!verbAfterDo || verbAfterDo.type !== BlockType.VERB) return null;
+
+  for (const danger of dangerousActions) {
+    if (verbAfterDo.word === danger.verb) {
+      if (objectAfterVerb && objectAfterVerb.word === danger.object) {
+        return {
+          accepted: true,
+          logicConflict: true,
+          message: danger.failMessage,
+          errorType: 'logic',
+          errorSubType: 'safety_logic_conflict',
+          detail: {
+            imperative: 'Do',
+            verb: danger.verb,
+            object: danger.object,
+            failMessage: danger.failMessage
+          }
+        };
+      }
+    }
+  }
+
+  return null;
+}
+
+// ============================================================
+// Module 5 Safety - 祈使句验证规则
+// ============================================================
+
+/**
+ * 规则G5: 验证祈使句 Don't + 动词原形
+ */
+function validateImperativeVerbForm(sentence) {
+  const errors = [];
+
+  for (let i = 0; i < sentence.length; i++) {
+    if (sentence[i].type === BlockType.IMPERATIVE &&
+        (sentence[i].word === "Don't" || sentence[i].word === 'Do')) {
+      const nextBlock = sentence[i + 1];
+      if (nextBlock && nextBlock.type === BlockType.VERB &&
+          nextBlock.verbForm && nextBlock.verbForm !== VerbForm.BARE) {
+        errors.push(`"${sentence[i].word}" 后面要跟动词原形，不能用 "${nextBlock.word}"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * 规则G6: 验证祈使句 Be + 形容词
+ */
+function validateImperativeBeAdjective(sentence) {
+  const errors = [];
+
+  for (let i = 0; i < sentence.length; i++) {
+    if (sentence[i].type === BlockType.IMPERATIVE && sentence[i].word === 'Be') {
+      const nextBlock = sentence[i + 1];
+      if (nextBlock && nextBlock.type !== BlockType.ADJECTIVE) {
+        errors.push('"Be" 后面要跟形容词（如 careful），不能用 "' + nextBlock.word + '"');
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * 规则G7: 检测祈使句逻辑冲突（Do + 危险动作）
+ */
+function validateImperativeLogicConflict(sentence) {
+  const warnings = [];
+
+  const doBlock = sentence.find(b =>
+    b.type === BlockType.IMPERATIVE && b.word === 'Do'
+  );
+  if (!doBlock) return warnings;
+
+  const doIndex = sentence.indexOf(doBlock);
+  const verbAfterDo = sentence[doIndex + 1];
+  const objectAfterVerb = sentence[doIndex + 2];
+
+  if (!verbAfterDo || verbAfterDo.type !== BlockType.VERB) return warnings;
+
+  const dangerVerbs = ['feed', 'cross', 'run', 'climb', 'touch'];
+  if (dangerVerbs.includes(verbAfterDo.word) && objectAfterVerb) {
+    warnings.push(`Safety warning: "Do ${verbAfterDo.word} ${objectAfterVerb.word}" violates safety rules!`);
+  }
+
+  return warnings;
+}
+
 module.exports = {
   BlockType,
   BlockColor,
@@ -529,11 +804,17 @@ module.exports = {
   checkWillConstraint,
   checkBeGoingToConstraint,
   checkUseToConstraint,
+  checkImperativeDontConstraint,
+  checkImperativeBeConstraint,
+  checkImperativeLogicConflict,
   validateSentence,
   validateBeVerbAgreement,
   validateWillVerbForm,
   validateBeGoingToVerbForm,
   validateBeGoingToBeVerb,
   validateUseToStructure,
+  validateImperativeVerbForm,
+  validateImperativeBeAdjective,
+  validateImperativeLogicConflict,
   calculateScore
 };
