@@ -80,6 +80,11 @@
     <view class="no-errors" wx:if="{{errorList.length === 0}}">
       <text>暂无错题记录，开始练习吧！</text>
     </view>
+    <!-- 进入错题档案库入口 -->
+    <view class="archive-entry" bindtap="goToMistakeArchive">
+      <text class="archive-entry-text">📋 查看完整错题档案库</text>
+      <text class="archive-entry-arrow">›</text>
+    </view>
   </view>
 
   <!-- VIP 导出功能 -->

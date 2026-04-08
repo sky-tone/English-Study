@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/level/level",
     "pages/parent/parent",
+    "pages/mistake-archive/mistake-archive",
     "pages/teacher/teacher"
   ],
   "window": {

@@ -1,0 +1,632 @@
+/* mistake-archive.wxss - 错题档案库样式 */
+
+.archive-page {
+  min-height: 100vh;
+  background: #F5F7FA;
+  padding-bottom: 200rpx;
+}
+
+/* ============================================================ */
+/* Zone 1: 顶部学情警报 */
+/* ============================================================ */
+.alert-zone {
+  background: linear-gradient(135deg, #1A1A2E, #16213E);
+  padding: 40rpx 30rpx 50rpx;
+  color: #fff;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 30rpx;
+}
+
+.alert-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-avatar-text {
+  font-size: 40rpx;
+}
+
+.alert-student-info {
+  flex: 1;
+}
+
+.alert-student-name {
+  display: block;
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #fff;
+  margin-bottom: 6rpx;
+}
+
+.alert-meta {
+  display: flex;
+  gap: 16rpx;
+}
+
+.alert-grade,
+.alert-week {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.alert-report {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20rpx;
+  padding: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+}
+
+.alert-report-header {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 16rpx;
+}
+
+.alert-icon {
+  font-size: 32rpx;
+}
+
+.alert-report-title {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #FFD700;
+}
+
+.alert-stats {
+  display: flex;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.alert-stat-item {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6rpx;
+  padding: 14rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.alert-stat-grammar {
+  background: rgba(231, 76, 60, 0.2);
+}
+
+.alert-stat-spelling {
+  background: rgba(74, 144, 217, 0.2);
+}
+
+.alert-stat-num {
+  font-size: 44rpx;
+  font-weight: bold;
+  color: #FF6B6B;
+}
+
+.alert-stat-spelling .alert-stat-num {
+  color: #6BB5FF;
+}
+
+.alert-stat-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.alert-suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 14rpx 16rpx;
+  background: rgba(255, 215, 0, 0.1);
+  border-radius: 12rpx;
+  border: 1rpx solid rgba(255, 215, 0, 0.2);
+}
+
+.alert-bulb {
+  font-size: 28rpx;
+  flex-shrink: 0;
+}
+
+.alert-suggestion-text {
+  font-size: 24rpx;
+  color: #FFD700;
+  line-height: 1.6;
+}
+
+/* ============================================================ */
+/* Zone 2: 错题"案发现场"还原 */
+/* ============================================================ */
+.cards-zone {
+  margin-top: -20rpx;
+  padding: 0 0 20rpx;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30rpx 30rpx 16rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.section-count {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.card-swiper {
+  height: 850rpx;
+  padding: 0 10rpx;
+}
+
+.mistake-card {
+  margin: 0 20rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+  height: 790rpx;
+  overflow-y: auto;
+}
+
+/* 卡片头部 */
+.card-header {
+  margin-bottom: 24rpx;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.card-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.severity-badge {
+  padding: 6rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.severity-fatal {
+  background: #FDECEA;
+  color: #E74C3C;
+}
+
+.severity-high {
+  background: #FFF3E0;
+  color: #F39C12;
+}
+
+.severity-medium {
+  background: #E8F5E9;
+  color: #27AE60;
+}
+
+.card-category {
+  display: inline-block;
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+}
+
+/* 案发现场 */
+.scene-section {
+  margin-bottom: 20rpx;
+}
+
+.scene-label,
+.sentence-label,
+.diagnosis-label {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 12rpx;
+}
+
+.scene-icon,
+.sentence-icon,
+.diagnosis-icon {
+  font-size: 28rpx;
+}
+
+/* 积木块展示 */
+.blocks-scene {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10rpx;
+  padding: 16rpx;
+  background: #F8F9FA;
+  border-radius: 16rpx;
+  border: 2rpx dashed #E0E0E0;
+}
+
+.scene-block {
+  position: relative;
+  padding: 10rpx 18rpx;
+  border-radius: 10rpx;
+  color: #fff;
+  font-size: 26rpx;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.scene-block-text {
+  color: #fff;
+}
+
+.block-wrong {
+  border: 3rpx solid #FF0000;
+  box-shadow: 0 0 10rpx rgba(255, 0, 0, 0.3);
+}
+
+.wrong-mark {
+  font-size: 22rpx;
+  color: #FFD700;
+  font-weight: bold;
+}
+
+/* 拼写错误列表 */
+.spelling-errors {
+  padding: 16rpx;
+  background: #F8F9FA;
+  border-radius: 16rpx;
+}
+
+.spelling-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 10rpx 0;
+  flex-wrap: wrap;
+}
+
+.spelling-row:not(:last-child) {
+  border-bottom: 1rpx solid #EEEEEE;
+}
+
+.spelling-wrong,
+.spelling-correct {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.spelling-cross {
+  color: #E74C3C;
+  font-weight: bold;
+  font-size: 24rpx;
+}
+
+.spelling-check {
+  color: #27AE60;
+  font-weight: bold;
+  font-size: 24rpx;
+}
+
+.spelling-text {
+  font-size: 28rpx;
+  font-weight: bold;
+  font-family: 'Courier New', monospace;
+}
+
+.spelling-text.wrong {
+  color: #E74C3C;
+  text-decoration: line-through;
+}
+
+.spelling-text.correct {
+  color: #27AE60;
+}
+
+.spelling-arrow {
+  color: #999;
+  font-size: 24rpx;
+}
+
+.spelling-hint {
+  font-size: 20rpx;
+  color: #999;
+  width: 100%;
+  padding-left: 30rpx;
+}
+
+/* 对应原句 */
+.sentence-section {
+  margin-bottom: 20rpx;
+}
+
+.wrong-sentence {
+  display: block;
+  font-size: 28rpx;
+  color: #E74C3C;
+  background: #FFF5F5;
+  padding: 16rpx;
+  border-radius: 12rpx;
+  border-left: 6rpx solid #E74C3C;
+  font-family: 'Courier New', monospace;
+  line-height: 1.6;
+}
+
+/* 系统诊断 */
+.diagnosis-section {
+  background: #FFF8E1;
+  border-radius: 16rpx;
+  padding: 16rpx;
+}
+
+.diagnosis-text {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 12rpx;
+}
+
+.exam-impact {
+  display: inline-block;
+}
+
+.impact-tag {
+  font-size: 22rpx;
+  color: #E74C3C;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 4rpx 14rpx;
+  border-radius: 8rpx;
+  font-weight: bold;
+}
+
+/* ============================================================ */
+/* Zone 3: VIP 专属提分方案 */
+/* ============================================================ */
+.vip-zone {
+  padding-bottom: 20rpx;
+}
+
+.exam-preview-card {
+  margin: 0 20rpx;
+}
+
+.exam-paper {
+  position: relative;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 30rpx;
+  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.exam-paper-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #E74C3C, #C0392B);
+  color: #fff;
+  padding: 6rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: bold;
+  margin-bottom: 16rpx;
+}
+
+.exam-paper-title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 24rpx;
+  line-height: 1.5;
+}
+
+/* 题目预览 */
+.preview-questions {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.preview-q {
+  padding: 16rpx;
+  background: #F8F9FA;
+  border-radius: 12rpx;
+  border-left: 6rpx solid #4A90D9;
+}
+
+.q-type-badge {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  margin-bottom: 8rpx;
+}
+
+.q-type-badge text:first-child {
+  font-size: 22rpx;
+  font-weight: bold;
+  color: #4A90D9;
+  background: rgba(74, 144, 217, 0.1);
+  padding: 2rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+.q-target {
+  font-size: 20rpx;
+  color: #E74C3C;
+}
+
+.q-content {
+  display: block;
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.6;
+  font-family: 'Courier New', monospace;
+}
+
+.q-options {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 10rpx;
+  flex-wrap: wrap;
+}
+
+.q-option {
+  font-size: 24rpx;
+  color: #555;
+  background: #fff;
+  padding: 6rpx 20rpx;
+  border-radius: 20rpx;
+  border: 1rpx solid #E0E0E0;
+}
+
+/* 虚化遮罩 */
+.blur-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.7) 20%,
+    rgba(255, 255, 255, 0.95) 60%,
+    rgba(255, 255, 255, 1)
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 30rpx;
+}
+
+.blur-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.blur-icon {
+  font-size: 48rpx;
+}
+
+.blur-text {
+  font-size: 26rpx;
+  color: #666;
+  font-weight: bold;
+}
+
+/* 卖点列表 */
+.selling-points {
+  margin: 20rpx;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.06);
+}
+
+.selling-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  padding: 10rpx 0;
+}
+
+.point-check {
+  font-size: 26rpx;
+  flex-shrink: 0;
+}
+
+.point-text {
+  font-size: 26rpx;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* ============================================================ */
+/* Zone 4: 底部悬浮支付按钮 */
+/* ============================================================ */
+.cta-zone {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #fff;
+  padding: 20rpx 30rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
+}
+
+.cta-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.cta-button {
+  width: 100%;
+  padding: 24rpx 40rpx;
+  border-radius: 48rpx;
+  background: linear-gradient(135deg, #FF6B6B, #E74C3C);
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(231, 76, 60, 0.4);
+}
+
+.cta-button:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.cta-button.cta-vip {
+  background: linear-gradient(135deg, #4A90D9, #357ABD);
+  box-shadow: 0 6rpx 20rpx rgba(74, 144, 217, 0.4);
+}
+
+.cta-main-text {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #fff;
+}
+
+.cta-bonus {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.bonus-icon {
+  font-size: 24rpx;
+}
+
+.bonus-text {
+  font-size: 22rpx;
+  color: #999;
+}
+
+/* 底部间距占位 */
+.bottom-spacer {
+  height: 180rpx;
+}

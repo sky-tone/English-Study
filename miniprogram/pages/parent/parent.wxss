@@ -194,6 +194,33 @@
   font-size: 26rpx;
 }
 
+/* 错题档案库入口 */
+.archive-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16rpx;
+  padding: 20rpx 16rpx;
+  background: linear-gradient(135deg, #FFF8E1, #FFE0B2);
+  border-radius: 12rpx;
+}
+
+.archive-entry:active {
+  opacity: 0.85;
+}
+
+.archive-entry-text {
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #E67E22;
+}
+
+.archive-entry-arrow {
+  font-size: 36rpx;
+  color: #E67E22;
+  font-weight: bold;
+}
+
 /* 导出区域 */
 .export-header {
   display: flex;
