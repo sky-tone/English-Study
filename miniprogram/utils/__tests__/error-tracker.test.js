@@ -426,3 +426,134 @@ describe('generatePDFData', () => {
     expect(writingSection.totalScore).toBe(0);
   });
 });
+
+// ============================================================
+// Module 5 Safety - O2O Template Tests
+// ============================================================
+describe('Module 5 Safety - Grammar Templates', () => {
+  test('GRAMMAR_TEMPLATES has imperative_verb_form key', () => {
+    expect(GRAMMAR_TEMPLATES.imperative_verb_form).toBeDefined();
+    expect(GRAMMAR_TEMPLATES.imperative_verb_form.length).toBeGreaterThan(0);
+  });
+
+  test('imperative_verb_form templates have correct structure', () => {
+    for (const t of GRAMMAR_TEMPLATES.imperative_verb_form) {
+      expect(t).toHaveProperty('question');
+      expect(t).toHaveProperty('options');
+      expect(t).toHaveProperty('answer');
+      expect(Array.isArray(t.options)).toBe(true);
+      expect(t.options).toContain(t.answer);
+    }
+  });
+
+  test('GRAMMAR_TEMPLATES has imperative_be_adjective key', () => {
+    expect(GRAMMAR_TEMPLATES.imperative_be_adjective).toBeDefined();
+    expect(GRAMMAR_TEMPLATES.imperative_be_adjective.length).toBeGreaterThan(0);
+  });
+
+  test('imperative_be_adjective templates have correct structure', () => {
+    for (const t of GRAMMAR_TEMPLATES.imperative_be_adjective) {
+      expect(t).toHaveProperty('question');
+      expect(t).toHaveProperty('options');
+      expect(t).toHaveProperty('answer');
+      expect(t.options).toContain(t.answer);
+    }
+  });
+});
+
+describe('Module 5 Safety - Spelling Templates', () => {
+  test('includes safety-related spelling templates', () => {
+    const patterns = SPELLING_TEMPLATES.map(t => t.pattern);
+    expect(patterns).toContain('dangerous');
+    expect(patterns).toContain('careful');
+    expect(patterns).toContain('cross');
+    expect(patterns).toContain('touch');
+    expect(patterns).toContain('feed');
+  });
+
+  test('safety spelling templates have questions with Don\'t context', () => {
+    const safetyTemplates = SPELLING_TEMPLATES.filter(t =>
+      ['dangerous', 'careful', 'cross', 'touch', 'feed'].includes(t.pattern)
+    );
+    for (const t of safetyTemplates) {
+      expect(t.question.length).toBeGreaterThan(0);
+      expect(t.answer.length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe('Module 5 Safety - Writing Templates', () => {
+  test('has safety rules writing template', () => {
+    const safetyTemplate = WRITING_TEMPLATES.find(t => t.module === 'Module 5');
+    expect(safetyTemplate).toBeDefined();
+    expect(safetyTemplate.title).toContain('Safety');
+    expect(safetyTemplate.template.length).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe('Module 5 - generateExercises imperative errors', () => {
+  test('imperative_verb_form error generates multiple choice', () => {
+    const errorLog = [{
+      type: ErrorCategory.GRAMMAR,
+      subType: 'imperative_verb_form',
+      detail: { imperative: "Don't", attempted: 'crossing' }
+    }];
+    const result = generateExercises(errorLog);
+    expect(result.multipleChoice.length).toBeGreaterThan(0);
+    expect(result.multipleChoice[0].type).toBe(QuestionTemplate.MULTIPLE_CHOICE);
+  });
+
+  test('imperative_be_adjective error generates multiple choice', () => {
+    const errorLog = [{
+      type: ErrorCategory.GRAMMAR,
+      subType: 'imperative_be_adjective',
+      detail: { attempted: 'walk' }
+    }];
+    const result = generateExercises(errorLog);
+    expect(result.multipleChoice.length).toBeGreaterThan(0);
+  });
+
+  test('safety spelling error for "dangerous" generates fill-in-blank', () => {
+    const errorLog = [{
+      type: ErrorCategory.SPELLING,
+      subType: 'misspell',
+      detail: { word: 'dangerous' }
+    }];
+    const result = generateExercises(errorLog);
+    expect(result.fillInBlank.length).toBeGreaterThan(0);
+    expect(result.fillInBlank[0].answer).toBe('dangerous');
+  });
+
+  test('safety spelling error for "careful" generates fill-in-blank', () => {
+    const errorLog = [{
+      type: ErrorCategory.SPELLING,
+      subType: 'misspell',
+      detail: { word: 'careful' }
+    }];
+    const result = generateExercises(errorLog);
+    expect(result.fillInBlank.length).toBeGreaterThan(0);
+    expect(result.fillInBlank[0].answer).toBe('careful');
+  });
+
+  test('safety_logic_conflict generates safety rules writing', () => {
+    const errorLog = [{
+      type: ErrorCategory.STRUCTURE,
+      subType: 'safety_logic_conflict',
+      detail: { verb: 'feed', object: 'the animals' }
+    }];
+    const result = generateExercises(errorLog);
+    expect(result.writing.length).toBeGreaterThan(0);
+    expect(result.writing[0].title).toContain('Safety');
+  });
+
+  test('safety_rules_complete generates safety writing', () => {
+    const errorLog = [{
+      type: ErrorCategory.STRUCTURE,
+      subType: 'safety_rules_complete',
+      detail: {}
+    }];
+    const result = generateExercises(errorLog);
+    expect(result.writing.length).toBeGreaterThan(0);
+    expect(result.writing[0].module).toBe('Module 5');
+  });
+});

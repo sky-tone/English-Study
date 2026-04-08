@@ -363,3 +363,180 @@ describe('Vocabulary Backpack', () => {
     expect(words).toContain('going to');
   });
 });
+
+// ============================================================
+// 7. Module 5 Safety - Imperative Blocks
+// ============================================================
+describe('Module 5 Safety - Imperative Blocks', () => {
+  test('IMPERATIVE_BLOCKS has 4 blocks', () => {
+    expect(IMPERATIVE_BLOCKS).toHaveLength(4);
+  });
+
+  test('imperative blocks all have type IMPERATIVE', () => {
+    for (const block of IMPERATIVE_BLOCKS) {
+      expect(block.type).toBe(BlockType.IMPERATIVE);
+    }
+  });
+
+  test('imperative blocks include Don\'t, Do, Be, You must', () => {
+    const words = IMPERATIVE_BLOCKS.map(b => b.word);
+    expect(words).toContain("Don't");
+    expect(words).toContain('Do');
+    expect(words).toContain('Be');
+    expect(words).toContain('You must');
+  });
+
+  test('SAFETY_VERB_BLOCKS includes core danger verbs', () => {
+    const words = SAFETY_VERB_BLOCKS.map(b => b.word);
+    expect(words).toContain('run');
+    expect(words).toContain('walk');
+    expect(words).toContain('touch');
+    expect(words).toContain('cross');
+    expect(words).toContain('climb');
+    expect(words).toContain('feed');
+  });
+
+  test('SAFETY_VERB_BLOCKS has distractor blocks', () => {
+    const distractors = SAFETY_VERB_BLOCKS.filter(b => b.isDistractor);
+    expect(distractors.length).toBeGreaterThan(0);
+    for (const d of distractors) {
+      expect(d.verbForm).not.toBe(VerbForm.BARE);
+    }
+  });
+
+  test('OBJECT_BLOCKS has danger objects/places', () => {
+    const words = OBJECT_BLOCKS.map(b => b.word);
+    expect(words).toContain('near the hot water');
+    expect(words).toContain('the animals');
+    expect(words).toContain('tall trees');
+    expect(words).toContain('in the street');
+  });
+
+  test('all OBJECT_BLOCKS have type OBJECT', () => {
+    for (const block of OBJECT_BLOCKS) {
+      expect(block.type).toBe(BlockType.OBJECT);
+    }
+  });
+
+  test('ADJECTIVE_BLOCKS includes careful and conditions', () => {
+    const words = ADJECTIVE_BLOCKS.map(b => b.word);
+    expect(words).toContain('careful');
+    expect(words).toContain('when the traffic light is red');
+  });
+
+  test('all ADJECTIVE_BLOCKS have type ADJECTIVE', () => {
+    for (const block of ADJECTIVE_BLOCKS) {
+      expect(block.type).toBe(BlockType.ADJECTIVE);
+    }
+  });
+});
+
+// ============================================================
+// 8. Module 5 Safety - Level Configurations
+// ============================================================
+describe('Module 5 Safety - Level Configurations', () => {
+  test('level_4 is Kitchen Safety', () => {
+    const l4 = LEVELS.find(l => l.id === 'level_4');
+    expect(l4).toBeDefined();
+    expect(l4.module).toBe('Module 5');
+    expect(l4.scenario).toBe('kitchen');
+    expect(l4.npc).toBe('mrs_webb');
+  });
+
+  test('level_5 is Zoo Safety', () => {
+    const l5 = LEVELS.find(l => l.id === 'level_5');
+    expect(l5).toBeDefined();
+    expect(l5.module).toBe('Module 5');
+    expect(l5.scenario).toBe('zoo');
+    expect(l5.npc).toBe('aki');
+  });
+
+  test('level_6 is Street Safety', () => {
+    const l6 = LEVELS.find(l => l.id === 'level_6');
+    expect(l6).toBeDefined();
+    expect(l6.module).toBe('Module 5');
+    expect(l6.scenario).toBe('street');
+    expect(l6.npc).toBe('ben');
+    expect(l6.minSentences).toBeGreaterThanOrEqual(2);
+  });
+
+  test('safety levels have imperative blocks available', () => {
+    for (const levelId of ['level_4', 'level_5', 'level_6']) {
+      const blocks = getBlocksForLevel(levelId);
+      expect(blocks.imperatives.length).toBeGreaterThan(0);
+    }
+  });
+
+  test('safety levels have no subjects or tenses', () => {
+    for (const levelId of ['level_4', 'level_5', 'level_6']) {
+      const blocks = getBlocksForLevel(levelId);
+      expect(blocks.subjects).toHaveLength(0);
+      expect(blocks.tenses).toHaveLength(0);
+    }
+  });
+
+  test('level_4 has kitchen-related objects', () => {
+    const blocks = getBlocksForLevel('level_4');
+    const objectWords = blocks.objects.map(b => b.word);
+    expect(objectWords).toContain('near the hot water');
+    expect(objectWords).toContain('the knife');
+  });
+
+  test('level_5 has zoo-related objects', () => {
+    const blocks = getBlocksForLevel('level_5');
+    const objectWords = blocks.objects.map(b => b.word);
+    expect(objectWords).toContain('the animals');
+    expect(objectWords).toContain('tall trees');
+  });
+
+  test('level_6 has street-related objects', () => {
+    const blocks = getBlocksForLevel('level_6');
+    const objectWords = blocks.objects.map(b => b.word);
+    expect(objectWords).toContain('the road');
+    expect(objectWords).toContain('in the street');
+  });
+});
+
+// ============================================================
+// 9. Module 5 - NPC Characters
+// ============================================================
+describe('Module 5 - NPC Characters', () => {
+  test('mrs_webb character exists with required fields', () => {
+    const mrsWebb = NPC_CHARACTERS.mrs_webb;
+    expect(mrsWebb).toBeDefined();
+    expect(mrsWebb.id).toBe('mrs_webb');
+    expect(mrsWebb.name).toBe('Mrs Webb');
+    expect(mrsWebb.avatar).toBeDefined();
+    expect(mrsWebb.greeting).toBeDefined();
+  });
+});
+
+// ============================================================
+// 10. Module 5 - Vocabulary Backpack
+// ============================================================
+describe('Module 5 - Vocabulary Backpack', () => {
+  test('module_5 vocabulary exists', () => {
+    expect(VOCABULARY_BACKPACK.module_5).toBeDefined();
+    expect(VOCABULARY_BACKPACK.module_5.title).toContain('Module 5');
+  });
+
+  test('module_5 has safety-related words', () => {
+    const words = VOCABULARY_BACKPACK.module_5.words.map(w => w.word);
+    expect(words).toContain('dangerous');
+    expect(words).toContain('careful');
+    expect(words).toContain('safe');
+    expect(words).toContain('cross');
+    expect(words).toContain('feed');
+    expect(words).toContain('touch');
+    expect(words).toContain('traffic light');
+  });
+
+  test('each module_5 vocabulary word has word and chinese fields', () => {
+    for (const entry of VOCABULARY_BACKPACK.module_5.words) {
+      expect(entry).toHaveProperty('word');
+      expect(entry).toHaveProperty('chinese');
+      expect(typeof entry.word).toBe('string');
+      expect(typeof entry.chinese).toBe('string');
+    }
+  });
+});
