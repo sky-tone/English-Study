@@ -12,6 +12,14 @@
     "backgroundColor": "#F5F7FA",
     "backgroundTextStyle": "dark"
   },
+  "permission": {
+    "scope.camera": {
+      "desc": "用于拍照上传练习资料"
+    }
+  },
+  "requiredPrivateInfos": [
+    "chooseMedia"
+  ],
   "usingComponents": {},
   "sitemapLocation": "sitemap.json",
   "style": "v2",

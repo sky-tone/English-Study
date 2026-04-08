@@ -15,14 +15,19 @@ const mockStorage = {};
 global.wx = {
   chooseMedia: jest.fn(),
   previewImage: jest.fn(),
+  getSetting: jest.fn((opts) => {
+    // Default: camera already authorized
+    opts.success({ authSetting: { 'scope.camera': true } });
+  }),
+  openSetting: jest.fn(),
+  showModal: jest.fn(),
   getStorageSync: jest.fn((key) => {
     return mockStorage[key] !== undefined ? mockStorage[key] : '';
   }),
   setStorageSync: jest.fn((key, value) => {
     mockStorage[key] = value;
   }),
-  showToast: jest.fn(),
-  showModal: jest.fn()
+  showToast: jest.fn()
 };
 
 const {
@@ -32,6 +37,7 @@ const {
   clearPhotos,
   previewPhoto,
   generatePhotoId,
+  ensureCameraAuth,
   STORAGE_KEY_PREFIX,
   DEFAULT_CONFIG
 } = require('../photo-uploader');
@@ -310,5 +316,154 @@ describe('choosePhoto', () => {
 
     const stored = getPhotos('teacher');
     expect(stored).toHaveLength(1);
+  });
+});
+
+// ============================================================
+// 8. ensureCameraAuth
+// ============================================================
+describe('ensureCameraAuth', () => {
+  test('resolves immediately when camera is already authorized', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': true } });
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+    expect(wx.showModal).not.toHaveBeenCalled();
+  });
+
+  test('resolves when camera has never been requested (undefined)', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: {} });
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+    expect(wx.showModal).not.toHaveBeenCalled();
+  });
+
+  test('shows modal when camera was previously denied', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+    wx.showModal.mockImplementation((opts) => {
+      opts.success({ confirm: false }); // user picks "仅相册"
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+    expect(wx.showModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: '需要摄像头权限',
+        confirmText: '去设置'
+      })
+    );
+  });
+
+  test('opens settings when user confirms re-enable', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+    wx.showModal.mockImplementation((opts) => {
+      opts.success({ confirm: true }); // user picks "去设置"
+    });
+    wx.openSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': true } });
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+    expect(wx.openSetting).toHaveBeenCalled();
+  });
+
+  test('resolves even if user does not re-enable in settings', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+    wx.showModal.mockImplementation((opts) => {
+      opts.success({ confirm: true });
+    });
+    wx.openSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+  });
+
+  test('resolves when openSetting fails', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+    wx.showModal.mockImplementation((opts) => {
+      opts.success({ confirm: true });
+    });
+    wx.openSetting.mockImplementation((opts) => {
+      opts.fail();
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+  });
+
+  test('resolves when getSetting fails', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.fail();
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+  });
+
+  test('resolves when showModal fails', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+    wx.showModal.mockImplementation((opts) => {
+      opts.fail();
+    });
+
+    await expect(ensureCameraAuth()).resolves.toBeUndefined();
+  });
+});
+
+// ============================================================
+// 9. choosePhoto with camera auth flow
+// ============================================================
+describe('choosePhoto camera auth integration', () => {
+  test('calls getSetting before chooseMedia', async () => {
+    const callOrder = [];
+    wx.getSetting.mockImplementation((opts) => {
+      callOrder.push('getSetting');
+      opts.success({ authSetting: { 'scope.camera': true } });
+    });
+    wx.chooseMedia.mockImplementation((opts) => {
+      callOrder.push('chooseMedia');
+      opts.success({ tempFiles: [{ tempFilePath: '/tmp/1.jpg', size: 100 }] });
+    });
+
+    await choosePhoto({ role: 'parent' });
+    expect(callOrder).toEqual(['getSetting', 'chooseMedia']);
+  });
+
+  test('still calls chooseMedia after user picks album-only fallback', async () => {
+    wx.getSetting.mockImplementation((opts) => {
+      opts.success({ authSetting: { 'scope.camera': false } });
+    });
+    wx.showModal.mockImplementation((opts) => {
+      opts.success({ confirm: false }); // "仅相册"
+    });
+    wx.chooseMedia.mockImplementation((opts) => {
+      opts.success({ tempFiles: [{ tempFilePath: '/tmp/1.jpg', size: 100 }] });
+    });
+
+    const result = await choosePhoto({ role: 'parent' });
+    expect(result.success).toBe(true);
+    expect(wx.chooseMedia).toHaveBeenCalled();
+  });
+
+  test('does not call getSetting when max photos already reached', async () => {
+    const fullList = Array.from({ length: 9 }, (_, i) => ({
+      id: `photo_${i}`, path: `/tmp/${i}.jpg`, size: 100, timestamp: i, role: 'parent'
+    }));
+    mockStorage['uploaded_photos_parent'] = fullList;
+
+    const result = await choosePhoto({ role: 'parent', maxPhotos: 9 });
+    expect(result.success).toBe(false);
+    expect(wx.getSetting).not.toHaveBeenCalled();
   });
 });

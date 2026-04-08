@@ -47,47 +47,106 @@ function choosePhoto(options = {}) {
     });
   }
 
-  return new Promise((resolve) => {
-    wx.chooseMedia({
-      count: remaining,
-      mediaType: ['image'],
-      sourceType: ['album', 'camera'],
-      sizeType: ['compressed'],
-      camera: 'back',
-      success: (res) => {
-        const newPhotos = res.tempFiles.map(file => ({
-          id: generatePhotoId(),
-          path: file.tempFilePath,
-          size: file.size,
-          timestamp: Date.now(),
-          role: role
-        }));
+  return ensureCameraAuth().then(() => {
+    return new Promise((resolve) => {
+      wx.chooseMedia({
+        count: remaining,
+        mediaType: ['image'],
+        sourceType: ['album', 'camera'],
+        sizeType: ['compressed'],
+        camera: 'back',
+        success: (res) => {
+          const newPhotos = res.tempFiles.map(file => ({
+            id: generatePhotoId(),
+            path: file.tempFilePath,
+            size: file.size,
+            timestamp: Date.now(),
+            role: role
+          }));
 
-        // 追加到本地存储
-        const allPhotos = [...existing, ...newPhotos];
-        wx.setStorageSync(storageKey, allPhotos);
+          // 追加到本地存储
+          const allPhotos = [...existing, ...newPhotos];
+          wx.setStorageSync(storageKey, allPhotos);
 
-        resolve({
-          success: true,
-          photos: newPhotos,
-          message: `成功添加 ${newPhotos.length} 张照片`
-        });
-      },
-      fail: (err) => {
-        // 用户取消选择不算错误
-        if (err.errMsg && err.errMsg.includes('cancel')) {
           resolve({
-            success: false,
-            photos: [],
-            message: ''
+            success: true,
+            photos: newPhotos,
+            message: `成功添加 ${newPhotos.length} 张照片`
+          });
+        },
+        fail: (err) => {
+          // 用户取消选择不算错误
+          if (err.errMsg && err.errMsg.includes('cancel')) {
+            resolve({
+              success: false,
+              photos: [],
+              message: ''
+            });
+          } else {
+            resolve({
+              success: false,
+              photos: [],
+              message: '选择照片失败，请重试'
+            });
+          }
+        }
+      });
+    });
+  });
+}
+
+/**
+ * 确保摄像头权限已授权
+ * 检查 scope.camera 状态，若未授权则请求授权，若已拒绝则引导用户到设置页重新开启
+ * @returns {Promise<void>}
+ */
+function ensureCameraAuth() {
+  return new Promise((resolve, reject) => {
+    wx.getSetting({
+      success: (res) => {
+        const cameraAuth = res.authSetting['scope.camera'];
+        if (cameraAuth === true) {
+          // 已授权
+          resolve();
+        } else if (cameraAuth === false) {
+          // 曾经拒绝过，引导用户到设置页开启
+          wx.showModal({
+            title: '需要摄像头权限',
+            content: '您之前拒绝了摄像头权限，请在设置中重新开启，以便拍照上传练习资料。',
+            confirmText: '去设置',
+            cancelText: '仅相册',
+            success: (modalRes) => {
+              if (modalRes.confirm) {
+                wx.openSetting({
+                  success: (settingRes) => {
+                    if (settingRes.authSetting['scope.camera']) {
+                      resolve();
+                    } else {
+                      // 用户在设置页仍未开启，仍然 resolve 以允许仅使用相册
+                      resolve();
+                    }
+                  },
+                  fail: () => {
+                    resolve();
+                  }
+                });
+              } else {
+                // 用户选择仅相册，仍然 resolve 让 chooseMedia 继续（仅相册不需要 camera 权限）
+                resolve();
+              }
+            },
+            fail: () => {
+              resolve();
+            }
           });
         } else {
-          resolve({
-            success: false,
-            photos: [],
-            message: '选择照片失败，请重试'
-          });
+          // 从未请求过（undefined），wx.chooseMedia 会自动弹出授权对话框
+          resolve();
         }
+      },
+      fail: () => {
+        // getSetting 失败，仍然尝试 chooseMedia
+        resolve();
       }
     });
   });
@@ -163,6 +222,7 @@ module.exports = {
   clearPhotos,
   previewPhoto,
   generatePhotoId,
+  ensureCameraAuth,
   STORAGE_KEY_PREFIX,
   DEFAULT_CONFIG
 };
