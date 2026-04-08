@@ -64,7 +64,8 @@ Page({
     const hasNextLevel = levelIndex < LEVELS.length - 1;
 
     // 获取词汇背包
-    const vocab = VOCABULARY_BACKPACK.module_2;
+    const moduleKey = levelData.module.toLowerCase().replace(' ', '_');
+    const vocab = VOCABULARY_BACKPACK[moduleKey] || VOCABULARY_BACKPACK.module_2;
 
     this.setData({
       levelId,

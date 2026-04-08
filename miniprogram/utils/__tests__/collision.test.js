@@ -21,12 +21,18 @@ const {
   checkWillConstraint,
   checkBeGoingToConstraint,
   checkUseToConstraint,
+  checkImperativeDontConstraint,
+  checkImperativeBeConstraint,
+  checkImperativeLogicConflict,
   validateSentence,
   validateBeVerbAgreement,
   validateWillVerbForm,
   validateBeGoingToVerbForm,
   validateBeGoingToBeVerb,
   validateUseToStructure,
+  validateImperativeVerbForm,
+  validateImperativeBeAdjective,
+  validateImperativeLogicConflict,
   calculateScore
 } = require('../collision');
 
@@ -57,6 +63,17 @@ const verbNoun = (word = 'a pencil') => makeBlock(word, BlockType.VERB, { verbFo
 
 const timeBlock = (word = 'this Saturday') => makeBlock(word, BlockType.TIME);
 const seqBlock = (word = 'First,') => makeBlock(word, BlockType.SEQUENCE);
+
+// Module 5 Safety helpers
+const imperativeDont = () => makeBlock("Don't", BlockType.IMPERATIVE);
+const imperativeDo = () => makeBlock('Do', BlockType.IMPERATIVE);
+const imperativeBe = () => makeBlock('Be', BlockType.IMPERATIVE);
+const imperativeYouMust = () => makeBlock('You must', BlockType.IMPERATIVE);
+const safetyVerbBare = (word = 'run') => makeBlock(word, BlockType.VERB, { verbForm: VerbForm.BARE });
+const safetyVerbGerund = (word = 'crossing') => makeBlock(word, BlockType.VERB, { verbForm: VerbForm.GERUND });
+const safetyVerbThirdPerson = (word = 'runs') => makeBlock(word, BlockType.VERB, { verbForm: VerbForm.THIRD_PERSON });
+const objectBlock = (word = 'near the hot water') => makeBlock(word, BlockType.OBJECT);
+const adjectiveBlock = (word = 'careful') => makeBlock(word, BlockType.ADJECTIVE);
 
 // ============================================================
 // 1. BlockType & BlockColor enums
@@ -793,5 +810,336 @@ describe('calculateScore', () => {
     // 100 - 20 (1 error) - 5 (1 warning) + 5 (1 sequence) = 80
     const score = calculateScore(sentence, ['err'], ['warn']);
     expect(score).toBe(80);
+  });
+});
+
+// ============================================================
+// Module 5 Safety - BlockType & BlockColor extensions
+// ============================================================
+describe('Module 5 - BlockType & BlockColor extensions', () => {
+  test('BlockType includes IMPERATIVE, OBJECT, ADJECTIVE', () => {
+    expect(BlockType.IMPERATIVE).toBe('imperative');
+    expect(BlockType.OBJECT).toBe('object');
+    expect(BlockType.ADJECTIVE).toBe('adjective');
+  });
+
+  test('BlockColor maps new types to hex colors', () => {
+    expect(BlockColor[BlockType.IMPERATIVE]).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(BlockColor[BlockType.OBJECT]).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    expect(BlockColor[BlockType.ADJECTIVE]).toMatch(/^#[0-9A-Fa-f]{6}$/);
+  });
+
+  test('VerbForm includes THIRD_PERSON', () => {
+    expect(VerbForm.THIRD_PERSON).toBe('third_person');
+  });
+});
+
+// ============================================================
+// Module 5 - Rule 6: Don't / Do + 动词原形约束
+// ============================================================
+describe('checkImperativeDontConstraint', () => {
+  test("Don't + bare verb → accepted", () => {
+    const sentence = [imperativeDont()];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbBare('run'), 1);
+    expect(result.accepted).toBe(true);
+  });
+
+  test("Don't + gerund → rejected", () => {
+    const sentence = [imperativeDont()];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbGerund('crossing'), 1);
+    expect(result.accepted).toBe(false);
+    expect(result.errorType).toBe('grammar');
+    expect(result.errorSubType).toBe('imperative_verb_form');
+  });
+
+  test("Don't + third person verb → rejected", () => {
+    const sentence = [imperativeDont()];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbThirdPerson('runs'), 1);
+    expect(result.accepted).toBe(false);
+    expect(result.errorSubType).toBe('imperative_verb_form');
+  });
+
+  test('Do + bare verb → accepted', () => {
+    const sentence = [imperativeDo()];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbBare('walk'), 1);
+    expect(result.accepted).toBe(true);
+  });
+
+  test('Do + gerund → rejected', () => {
+    const sentence = [imperativeDo()];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbGerund('climbing'), 1);
+    expect(result.accepted).toBe(false);
+  });
+
+  test('non-verb block is not checked', () => {
+    const sentence = [imperativeDont()];
+    const result = checkImperativeDontConstraint(sentence, objectBlock(), 1);
+    expect(result).toBeNull();
+  });
+
+  test('verb not immediately after imperative → null (not checked)', () => {
+    const sentence = [imperativeDont(), safetyVerbBare('run')];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbGerund('crossing'), 2);
+    expect(result).toBeNull();
+  });
+
+  test('no imperative in sentence → null', () => {
+    const sentence = [subjectI()];
+    const result = checkImperativeDontConstraint(sentence, safetyVerbBare('run'), 1);
+    expect(result).toBeNull();
+  });
+});
+
+// ============================================================
+// Module 5 - Rule 7: Be + 形容词约束
+// ============================================================
+describe('checkImperativeBeConstraint', () => {
+  test('Be + adjective → accepted', () => {
+    const sentence = [imperativeBe()];
+    const result = checkImperativeBeConstraint(sentence, adjectiveBlock('careful'), 1);
+    expect(result.accepted).toBe(true);
+  });
+
+  test('Be + verb → rejected', () => {
+    const sentence = [imperativeBe()];
+    const result = checkImperativeBeConstraint(sentence, safetyVerbBare('walk'), 1);
+    expect(result.accepted).toBe(false);
+    expect(result.errorType).toBe('grammar');
+    expect(result.errorSubType).toBe('imperative_be_adjective');
+  });
+
+  test('Be + object → rejected', () => {
+    const sentence = [imperativeBe()];
+    const result = checkImperativeBeConstraint(sentence, objectBlock('near the hot water'), 1);
+    expect(result.accepted).toBe(false);
+    expect(result.errorSubType).toBe('imperative_be_adjective');
+  });
+
+  test('Be + non-adjacent block → null', () => {
+    const sentence = [imperativeBe(), adjectiveBlock('careful')];
+    const result = checkImperativeBeConstraint(sentence, safetyVerbBare('run'), 2);
+    expect(result).toBeNull();
+  });
+
+  test('no Be in sentence → null', () => {
+    const sentence = [imperativeDont()];
+    const result = checkImperativeBeConstraint(sentence, adjectiveBlock('careful'), 1);
+    expect(result).toBeNull();
+  });
+});
+
+// ============================================================
+// Module 5 - Rule 8: 逻辑冲突检测
+// ============================================================
+describe('checkImperativeLogicConflict', () => {
+  test('Do + feed + the animals → logic conflict', () => {
+    const sentence = [imperativeDo(), safetyVerbBare('feed')];
+    const result = checkImperativeLogicConflict(sentence, objectBlock('the animals'), 2);
+    expect(result).not.toBeNull();
+    expect(result.accepted).toBe(true);
+    expect(result.logicConflict).toBe(true);
+    expect(result.message).toContain('must not feed');
+  });
+
+  test('Do + run + near the hot water → logic conflict', () => {
+    const sentence = [imperativeDo(), safetyVerbBare('run')];
+    const result = checkImperativeLogicConflict(sentence, objectBlock('near the hot water'), 2);
+    expect(result).not.toBeNull();
+    expect(result.logicConflict).toBe(true);
+  });
+
+  test("Don't + feed + the animals → no conflict (correct safety rule)", () => {
+    const sentence = [imperativeDont(), safetyVerbBare('feed')];
+    const result = checkImperativeLogicConflict(sentence, objectBlock('the animals'), 2);
+    expect(result).toBeNull();
+  });
+
+  test('Do + walk + safe object → no conflict', () => {
+    const sentence = [imperativeDo(), safetyVerbBare('walk')];
+    const result = checkImperativeLogicConflict(sentence, objectBlock('on the stairs'), 2);
+    expect(result).toBeNull();
+  });
+
+  test('no Do imperative → null', () => {
+    const sentence = [imperativeDont(), safetyVerbBare('feed')];
+    const result = checkImperativeLogicConflict(sentence, objectBlock('the animals'), 2);
+    expect(result).toBeNull();
+  });
+});
+
+// ============================================================
+// Module 5 - checkCollision integration for imperatives
+// ============================================================
+describe('checkCollision - Module 5 imperatives integration', () => {
+  test("Don't + bare verb passes collision", () => {
+    const sentence = [imperativeDont()];
+    const result = checkCollision(null, safetyVerbBare('run'), sentence, 1);
+    expect(result.accepted).toBe(true);
+  });
+
+  test("Don't + gerund rejected by collision", () => {
+    const sentence = [imperativeDont()];
+    const result = checkCollision(null, safetyVerbGerund('crossing'), sentence, 1);
+    expect(result.accepted).toBe(false);
+    expect(result.errorSubType).toBe('imperative_verb_form');
+  });
+
+  test('Be + adjective passes collision', () => {
+    const sentence = [imperativeBe()];
+    const result = checkCollision(null, adjectiveBlock('careful'), sentence, 1);
+    expect(result.accepted).toBe(true);
+  });
+
+  test('Be + verb rejected by collision', () => {
+    const sentence = [imperativeBe()];
+    const result = checkCollision(null, safetyVerbBare('walk'), sentence, 1);
+    expect(result.accepted).toBe(false);
+    expect(result.errorSubType).toBe('imperative_be_adjective');
+  });
+
+  test('Do + feed + the animals triggers logic conflict via collision', () => {
+    const sentence = [imperativeDo(), safetyVerbBare('feed')];
+    const result = checkCollision(null, objectBlock('the animals'), sentence, 2);
+    expect(result.accepted).toBe(true);
+    expect(result.logicConflict).toBe(true);
+  });
+});
+
+// ============================================================
+// Module 5 - validateSentence for imperative sentences
+// ============================================================
+describe('validateSentence - Module 5 imperatives', () => {
+  test("Don't + run + object is valid", () => {
+    const sentence = [imperativeDont(), safetyVerbBare('run'), objectBlock('near the hot water')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  test("Be + careful is valid (no verb needed)", () => {
+    const sentence = [imperativeBe(), adjectiveBlock('careful')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  test("Don't + gerund produces error", () => {
+    const sentence = [imperativeDont(), safetyVerbGerund('crossing')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  test("Be + verb produces error", () => {
+    const sentence = [imperativeBe(), safetyVerbBare('walk')];
+    const result = validateSentence(sentence);
+    expect(result.valid).toBe(false);
+    expect(result.errors.length).toBeGreaterThan(0);
+  });
+
+  test("Do + feed + the animals produces logic warning", () => {
+    const sentence = [imperativeDo(), safetyVerbBare('feed'), objectBlock('the animals')];
+    const result = validateSentence(sentence);
+    expect(result.warnings.length).toBeGreaterThan(0);
+  });
+
+  test("imperative sentence doesn't require subject", () => {
+    const sentence = [imperativeDont(), safetyVerbBare('run'), objectBlock('in the street')];
+    const result = validateSentence(sentence);
+    // Should not have "缺少主语" error
+    const subjectErrors = result.errors.filter(e => e.includes('主语'));
+    expect(subjectErrors).toHaveLength(0);
+  });
+
+  test("imperative sentence doesn't require tense", () => {
+    const sentence = [imperativeDont(), safetyVerbBare('cross'), objectBlock('the road')];
+    const result = validateSentence(sentence);
+    // Should not have tense warning
+    const tenseWarnings = result.warnings.filter(w => w.includes('时态'));
+    expect(tenseWarnings).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// Module 5 - validateImperativeVerbForm
+// ============================================================
+describe('validateImperativeVerbForm', () => {
+  test("Don't + bare verb → no errors", () => {
+    const sentence = [imperativeDont(), safetyVerbBare('run')];
+    const errors = validateImperativeVerbForm(sentence);
+    expect(errors).toHaveLength(0);
+  });
+
+  test("Don't + gerund → error", () => {
+    const sentence = [imperativeDont(), safetyVerbGerund('crossing')];
+    const errors = validateImperativeVerbForm(sentence);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain("Don't");
+  });
+
+  test("Do + third person → error", () => {
+    const sentence = [imperativeDo(), safetyVerbThirdPerson('runs')];
+    const errors = validateImperativeVerbForm(sentence);
+    expect(errors.length).toBeGreaterThan(0);
+  });
+
+  test('no imperative → no errors', () => {
+    const sentence = [subjectI(), tenseWill(), verbBare()];
+    const errors = validateImperativeVerbForm(sentence);
+    expect(errors).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// Module 5 - validateImperativeBeAdjective
+// ============================================================
+describe('validateImperativeBeAdjective', () => {
+  test('Be + adjective → no errors', () => {
+    const sentence = [imperativeBe(), adjectiveBlock('careful')];
+    const errors = validateImperativeBeAdjective(sentence);
+    expect(errors).toHaveLength(0);
+  });
+
+  test('Be + verb → error', () => {
+    const sentence = [imperativeBe(), safetyVerbBare('walk')];
+    const errors = validateImperativeBeAdjective(sentence);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors[0]).toContain('Be');
+  });
+
+  test('Be + object → error', () => {
+    const sentence = [imperativeBe(), objectBlock('the road')];
+    const errors = validateImperativeBeAdjective(sentence);
+    expect(errors.length).toBeGreaterThan(0);
+  });
+
+  test('no Be → no errors', () => {
+    const sentence = [imperativeDont(), safetyVerbBare('run')];
+    const errors = validateImperativeBeAdjective(sentence);
+    expect(errors).toHaveLength(0);
+  });
+});
+
+// ============================================================
+// Module 5 - validateImperativeLogicConflict
+// ============================================================
+describe('validateImperativeLogicConflict', () => {
+  test('Do + feed + the animals → warning', () => {
+    const sentence = [imperativeDo(), safetyVerbBare('feed'), objectBlock('the animals')];
+    const warnings = validateImperativeLogicConflict(sentence);
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(warnings[0]).toContain('feed');
+  });
+
+  test('Do + walk + safe → no warning', () => {
+    const sentence = [imperativeDo(), safetyVerbBare('walk')];
+    const warnings = validateImperativeLogicConflict(sentence);
+    expect(warnings).toHaveLength(0);
+  });
+
+  test("Don't + feed → no warning (Don't is correct)", () => {
+    const sentence = [imperativeDont(), safetyVerbBare('feed'), objectBlock('the animals')];
+    const warnings = validateImperativeLogicConflict(sentence);
+    expect(warnings).toHaveLength(0);
   });
 });

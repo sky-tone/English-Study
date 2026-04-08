@@ -27,6 +27,13 @@ const NPC_CHARACTERS = {
     avatar: '/images/ben.png',
     description: 'Aki 的好朋友',
     greeting: 'Hi there! I\'m Ben! 👋'
+  },
+  mrs_webb: {
+    id: 'mrs_webb',
+    name: 'Mrs Webb',
+    avatar: '/images/mrs_webb.png',
+    description: 'Ben 的妈妈',
+    greeting: 'Be careful in the kitchen, children! 🍳'
   }
 };
 
@@ -101,6 +108,54 @@ const SEQUENCE_BLOCKS = [
 ];
 
 // ============================================================
+// 积木数据库 - Module 5 Safety (祈使句)
+// ============================================================
+
+// 🟥 红色积木 - 祈使句指令引擎（句首大写）
+const IMPERATIVE_BLOCKS = [
+  { id: 'imp1', word: "Don't", type: BlockType.IMPERATIVE, color: '#E74C3C' },
+  { id: 'imp2', word: 'Do', type: BlockType.IMPERATIVE, color: '#E74C3C' },
+  { id: 'imp3', word: 'Be', type: BlockType.IMPERATIVE, color: '#E74C3C' },
+  { id: 'imp4', word: 'You must', type: BlockType.IMPERATIVE, color: '#E74C3C' }
+];
+
+// 🟩 绿色积木 - 核心危险动作（动词原形）- Module 5
+const SAFETY_VERB_BLOCKS = [
+  { id: 'sv1', word: 'run', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv2', word: 'walk', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv3', word: 'touch', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv4', word: 'cross', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv5', word: 'climb', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv6', word: 'feed', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv7', word: 'play', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv8', word: 'enter', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  // 干扰项 - 错误形式（非原形）
+  { id: 'sv_wrong1', word: 'crossing', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.GERUND, isDistractor: true },
+  { id: 'sv_wrong2', word: 'runs', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.THIRD_PERSON, isDistractor: true },
+  { id: 'sv_wrong3', word: 'climbing', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.GERUND, isDistractor: true }
+];
+
+// 🟨 黄色积木 - 危险物品/地点
+const OBJECT_BLOCKS = [
+  { id: 'ob1', word: 'near the hot water', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob2', word: 'a fan', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob3', word: 'the animals', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob4', word: 'tall trees', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob5', word: 'on the stairs', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob6', word: 'the road', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob7', word: 'in the street', type: BlockType.OBJECT, color: '#F39C12' },
+  { id: 'ob8', word: 'the knife', type: BlockType.OBJECT, color: '#F39C12' }
+];
+
+// 🟣 紫色积木 - 条件/状态后缀
+const ADJECTIVE_BLOCKS = [
+  { id: 'adj1', word: 'careful', type: BlockType.ADJECTIVE, color: '#9B59B6' },
+  { id: 'adj2', word: 'when the traffic light is red', type: BlockType.ADJECTIVE, color: '#9B59B6' },
+  { id: 'adj3', word: 'quiet', type: BlockType.ADJECTIVE, color: '#9B59B6' },
+  { id: 'adj4', word: 'safe', type: BlockType.ADJECTIVE, color: '#9B59B6' }
+];
+
+// ============================================================
 // 关卡配置 - Module 2 Travel Plan
 // ============================================================
 const LEVELS = [
@@ -126,7 +181,10 @@ const LEVELS = [
       tenses: ['t1', 't2', 't3', 't4', 't5'],
       verbs: ['v1', 'v2', 'v3', 'v4', 'v5', 'v_wrong1', 'v_wrong2'],
       times: ['tm1', 'tm2', 'tm4'],
-      sequences: []
+      sequences: [],
+      imperatives: [],
+      objects: [],
+      adjectives: []
     },
     // 参考答案
     sampleAnswers: [
@@ -161,7 +219,10 @@ const LEVELS = [
       tenses: ['t1', 't2', 't3', 't4', 't5'],
       verbs: ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v_wrong1', 'v_wrong2', 'v_wrong3'],
       times: ['tm1', 'tm2', 'tm3', 'tm4', 'tm5', 'tm6', 'tm7'],
-      sequences: ['sq1', 'sq2', 'sq3', 'sq4', 'sq5', 'sq6', 'sq7']
+      sequences: ['sq1', 'sq2', 'sq3', 'sq4', 'sq5', 'sq6', 'sq7'],
+      imperatives: [],
+      objects: [],
+      adjectives: []
     },
     sampleAnswers: [
       ['First,', 'we', 'will', 'take a plane', 'to Beijing'],
@@ -195,7 +256,10 @@ const LEVELS = [
       tenses: [],
       verbs: ['v_tool1', 'v_tool2', 'v_tool3', 'v_tool4'],
       times: [],
-      sequences: []
+      sequences: [],
+      imperatives: [],
+      objects: [],
+      adjectives: []
     },
     sampleAnswers: [
       ['Use', 'a pencil', 'to', 'draw'],
@@ -203,6 +267,119 @@ const LEVELS = [
     ],
     maxScore: 100,
     passScore: 60
+  },
+  // ============================================================
+  // Module 5 Safety - 祈使句关卡
+  // ============================================================
+  {
+    id: 'level_4',
+    module: 'Module 5',
+    title: 'Kitchen Safety - Level 4',
+    subtitle: '🔥 Mrs Webb 的厨房危机！阻止 Ben 的危险行为',
+    difficulty: 1,
+    npc: 'mrs_webb',
+    scenario: 'kitchen',
+    trigger: {
+      character: 'mrs_webb',
+      message: '🔥 Ben is in the kitchen with a sharp knife and hot water! Help me stop him! 🚨',
+      subMessage: '快用安全指令阻止 Ben 的危险动作！'
+    },
+    objectives: [
+      '使用 Don\'t 造一个安全警告句',
+      '正确搭配动词原形和危险物品'
+    ],
+    requiredTypes: [BlockType.IMPERATIVE, BlockType.VERB],
+    availableBlocks: {
+      subjects: [],
+      tenses: [],
+      verbs: ['sv1', 'sv2', 'sv3', 'sv_wrong1'],
+      times: [],
+      sequences: [],
+      imperatives: ['imp1', 'imp3'],
+      objects: ['ob1', 'ob5', 'ob8'],
+      adjectives: ['adj1']
+    },
+    sampleAnswers: [
+      ["Don't", 'run', 'near the hot water'],
+      ["Don't", 'touch', 'the knife'],
+      ['Be', 'careful']
+    ],
+    maxScore: 100,
+    passScore: 60
+  },
+  {
+    id: 'level_5',
+    module: 'Module 5',
+    title: 'Zoo Safety - Level 5',
+    subtitle: '🐒 外星人 Aki 大闹动物园！',
+    difficulty: 2,
+    npc: 'aki',
+    scenario: 'zoo',
+    trigger: {
+      character: 'aki',
+      message: '🐒 Look at those monkeys! I want to feed them! Let me climb over the fence! 🍌',
+      subMessage: '快对 Aki 大喊警告，阻止他的危险行为！'
+    },
+    objectives: [
+      '使用 Don\'t 或 Do not 拼装警告标语',
+      '识别并纠正逻辑冲突句子'
+    ],
+    requiredTypes: [BlockType.IMPERATIVE, BlockType.VERB],
+    availableBlocks: {
+      subjects: [],
+      tenses: [],
+      verbs: ['sv5', 'sv6', 'sv8', 'sv_wrong3'],
+      times: [],
+      sequences: [],
+      imperatives: ['imp1', 'imp2', 'imp4'],
+      objects: ['ob3', 'ob4'],
+      adjectives: ['adj1', 'adj3']
+    },
+    sampleAnswers: [
+      ["Don't", 'feed', 'the animals'],
+      ["Don't", 'climb', 'tall trees'],
+      ["Don't", 'enter']
+    ],
+    maxScore: 100,
+    passScore: 70
+  },
+  {
+    id: 'level_6',
+    module: 'Module 5',
+    title: 'Street Safety - Level 6',
+    subtitle: '🚦 街头生存指南！制定交通规则',
+    difficulty: 2,
+    npc: 'ben',
+    scenario: 'street',
+    trigger: {
+      character: 'ben',
+      message: '🚦 A boy is trying to cross the road when the light is red! Someone is playing football in the street! 🏈',
+      subMessage: '快制定交通安全规则！'
+    },
+    objectives: [
+      '使用 Don\'t 制定至少2条交通规则',
+      '使用 Be careful 搭配条件状语'
+    ],
+    requiredTypes: [BlockType.IMPERATIVE, BlockType.VERB],
+    availableBlocks: {
+      subjects: [],
+      tenses: [],
+      verbs: ['sv1', 'sv2', 'sv4', 'sv7', 'sv_wrong1', 'sv_wrong2'],
+      times: [],
+      sequences: [],
+      imperatives: ['imp1', 'imp2', 'imp3', 'imp4'],
+      objects: ['ob6', 'ob7'],
+      adjectives: ['adj1', 'adj2', 'adj4']
+    },
+    sampleAnswers: [
+      ["Don't", 'cross', 'the road', 'when the traffic light is red'],
+      ["Don't", 'play', 'in the street'],
+      ['Be', 'careful'],
+      ["Don't", 'run', 'in the street']
+    ],
+    maxScore: 100,
+    passScore: 70,
+    minSentences: 2
   }
 ];
 
@@ -230,6 +407,27 @@ const VOCABULARY_BACKPACK = {
       { word: 'then', chinese: '然后', phonetic: '/ðen/' },
       { word: 'finally', chinese: '最后', phonetic: '/ˈfaɪnəli/' }
     ]
+  },
+  module_5: {
+    title: 'Module 5 - Safety',
+    words: [
+      { word: 'dangerous', chinese: '危险的', phonetic: '/ˈdeɪndʒərəs/' },
+      { word: 'careful', chinese: '小心的', phonetic: '/ˈkeəfl/' },
+      { word: 'safe', chinese: '安全的', phonetic: '/seɪf/' },
+      { word: 'knife', chinese: '刀', phonetic: '/naɪf/' },
+      { word: 'sharp', chinese: '锋利的', phonetic: '/ʃɑːp/' },
+      { word: 'hot water', chinese: '热水', phonetic: '' },
+      { word: 'cross', chinese: '穿越', phonetic: '/krɒs/' },
+      { word: 'traffic light', chinese: '交通灯', phonetic: '/ˈtræfɪk laɪt/' },
+      { word: 'feed', chinese: '喂', phonetic: '/fiːd/' },
+      { word: 'climb', chinese: '攀爬', phonetic: '/klaɪm/' },
+      { word: 'touch', chinese: '触摸', phonetic: '/tʌtʃ/' },
+      { word: 'enter', chinese: '进入', phonetic: '/ˈentə/' },
+      { word: 'stairs', chinese: '楼梯', phonetic: '/steəz/' },
+      { word: 'fan', chinese: '风扇', phonetic: '/fæn/' },
+      { word: 'street', chinese: '街道', phonetic: '/striːt/' },
+      { word: 'road', chinese: '马路', phonetic: '/rəʊd/' }
+    ]
   }
 };
 
@@ -245,15 +443,20 @@ function getBlocksForLevel(levelId) {
   const allBlocks = {
     subjects: SUBJECT_BLOCKS,
     tenses: TENSE_BLOCKS,
-    verbs: VERB_BLOCKS,
+    verbs: [...VERB_BLOCKS, ...SAFETY_VERB_BLOCKS],
     times: TIME_BLOCKS,
-    sequences: SEQUENCE_BLOCKS
+    sequences: SEQUENCE_BLOCKS,
+    imperatives: IMPERATIVE_BLOCKS,
+    objects: OBJECT_BLOCKS,
+    adjectives: ADJECTIVE_BLOCKS
   };
 
   const result = {};
 
   for (const [category, ids] of Object.entries(level.availableBlocks)) {
-    result[category] = allBlocks[category].filter(b => ids.includes(b.id));
+    if (allBlocks[category]) {
+      result[category] = allBlocks[category].filter(b => ids.includes(b.id));
+    }
   }
 
   return result;
@@ -270,7 +473,11 @@ function getBlockById(blockId) {
     ...TENSE_BLOCKS,
     ...VERB_BLOCKS,
     ...TIME_BLOCKS,
-    ...SEQUENCE_BLOCKS
+    ...SEQUENCE_BLOCKS,
+    ...IMPERATIVE_BLOCKS,
+    ...SAFETY_VERB_BLOCKS,
+    ...OBJECT_BLOCKS,
+    ...ADJECTIVE_BLOCKS
   ];
   return allBlocks.find(b => b.id === blockId) || null;
 }
@@ -282,6 +489,10 @@ module.exports = {
   VERB_BLOCKS,
   TIME_BLOCKS,
   SEQUENCE_BLOCKS,
+  IMPERATIVE_BLOCKS,
+  SAFETY_VERB_BLOCKS,
+  OBJECT_BLOCKS,
+  ADJECTIVE_BLOCKS,
   LEVELS,
   VOCABULARY_BACKPACK,
   getBlocksForLevel,

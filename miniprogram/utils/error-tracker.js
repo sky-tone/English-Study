@@ -67,6 +67,37 @@ const SPELLING_TEMPLATES = [
     question: 'Ben likes to s______ in the pool.',
     answer: 'swim',
     hint: '根据首字母提示填空'
+  },
+  // Module 5 Safety 拼写模板
+  {
+    pattern: 'dangerous',
+    question: 'Don\'t run in the street. It\'s d______.',
+    answer: 'dangerous',
+    hint: '根据首字母提示填空'
+  },
+  {
+    pattern: 'careful',
+    question: 'Be c______ when you cross the road.',
+    answer: 'careful',
+    hint: '根据首字母提示填空'
+  },
+  {
+    pattern: 'cross',
+    question: 'Don\'t c______ the road when the traffic light is red.',
+    answer: 'cross',
+    hint: '根据首字母提示填空'
+  },
+  {
+    pattern: 'touch',
+    question: 'Don\'t t______ the hot water.',
+    answer: 'touch',
+    hint: '根据首字母提示填空'
+  },
+  {
+    pattern: 'feed',
+    question: 'Don\'t f______ the animals at the zoo.',
+    answer: 'feed',
+    hint: '根据首字母提示填空'
   }
 ];
 
@@ -127,6 +158,40 @@ const GRAMMAR_TEMPLATES = {
       answer: 'travel',
       explanation: '"be going to" 后面跟动词原形'
     }
+  ],
+  imperative_verb_form: [
+    {
+      question: "Don't ______ in the street. It's dangerous.",
+      options: ['run', 'running', 'runs'],
+      answer: 'run',
+      explanation: '"Don\'t" 后面跟动词原形'
+    },
+    {
+      question: "Don't ______ the road when the traffic light is red.",
+      options: ['cross', 'crossing', 'crosses'],
+      answer: 'cross',
+      explanation: '"Don\'t" 后面跟动词原形'
+    },
+    {
+      question: "Don't ______ the animals at the zoo.",
+      options: ['feed', 'feeding', 'feeds'],
+      answer: 'feed',
+      explanation: '"Don\'t" 后面跟动词原形'
+    }
+  ],
+  imperative_be_adjective: [
+    {
+      question: "______ careful on the stairs.",
+      options: ['Be', 'Do', 'Are'],
+      answer: 'Be',
+      explanation: '"Be" + 形容词，表达安全提醒'
+    },
+    {
+      question: "Be ______ when you cross the road.",
+      options: ['careful', 'run', 'cross'],
+      answer: 'careful',
+      explanation: '"Be" 后面跟形容词'
+    }
   ]
 };
 
@@ -144,6 +209,20 @@ const WRITING_TEMPLATES = [
       '_______________________ (结束句：表达期待)'
     ],
     startingSentence: 'My family and I are going to travel to _______ this summer holiday.'
+  },
+  {
+    title: 'Safety Rules for Our Classroom',
+    instruction: '制定5条保持课室安全的规则',
+    prompt: 'Make 5 rules to keep your classroom safe. Use imperatives (Don\'t..., Be...):',
+    module: 'Module 5',
+    template: [
+      "1. Don't r_______ on the stairs.",
+      "2. Don't c_______ the desks.",
+      "3. Be c_______ with scissors.",
+      "4. Don't t_______ the fan.",
+      "5. Don't p_______ in the classroom."
+    ],
+    startingSentence: "Here are some safety rules for our classroom:"
   }
 ];
 
@@ -249,6 +328,17 @@ function addStructureExercise(exercises, error) {
       type: QuestionTemplate.WRITING,
       source: error
     });
+  }
+  if (error.subType === 'safety_rules_complete' || error.subType === 'safety_logic_conflict') {
+    // Module 5 Safety: 制定安全守则
+    const safetyTemplate = WRITING_TEMPLATES.find(t => t.module === 'Module 5');
+    if (safetyTemplate) {
+      exercises.writing.push({
+        ...safetyTemplate,
+        type: QuestionTemplate.WRITING,
+        source: error
+      });
+    }
   }
 }
 
