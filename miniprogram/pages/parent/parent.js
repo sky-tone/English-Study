@@ -205,6 +205,15 @@ Page({
   /**
    * 清空所有照片
    */
+  /**
+   * 跳转到错题档案库页面
+   */
+  goToMistakeArchive() {
+    wx.navigateTo({
+      url: '/pages/mistake-archive/mistake-archive'
+    });
+  },
+
   onClearPhotos() {
     if (this.data.uploadedPhotos.length === 0) return;
     wx.showModal({

@@ -1,0 +1,214 @@
+<!--
+  mistake-archive.wxml - 错题档案库
+  家长端高转化 UI：学情警报 → 案发现场还原 → VIP试卷预览 → 支付CTA
+-->
+<view class="archive-page">
+
+  <!-- ============================================================ -->
+  <!-- Zone 1: 顶部学情警报 -->
+  <!-- ============================================================ -->
+  <view class="alert-zone">
+    <view class="alert-header">
+      <view class="alert-avatar">
+        <text class="alert-avatar-text">👤</text>
+      </view>
+      <view class="alert-student-info">
+        <text class="alert-student-name">{{alert.studentName}}的专属错题档案库</text>
+        <view class="alert-meta">
+          <text class="alert-grade">📅 {{alert.grade}}</text>
+          <text class="alert-week">第 {{alert.week}} 周</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="alert-report">
+      <view class="alert-report-header">
+        <text class="alert-icon">⚠️</text>
+        <text class="alert-report-title">本周扫描报告</text>
+      </view>
+      <view class="alert-stats">
+        <view class="alert-stat-item alert-stat-grammar">
+          <text class="alert-stat-num">{{alert.grammarIssues}}</text>
+          <text class="alert-stat-label">个高频语法隐患</text>
+        </view>
+        <view class="alert-stat-item alert-stat-spelling">
+          <text class="alert-stat-num">{{alert.spellingIssues}}</text>
+          <text class="alert-stat-label">个拼写易错词</text>
+        </view>
+      </view>
+      <view class="alert-suggestion">
+        <text class="alert-bulb">💡</text>
+        <text class="alert-suggestion-text">{{alert.suggestion}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================ -->
+  <!-- Zone 2: 错题"案发现场"还原 -->
+  <!-- ============================================================ -->
+  <view class="cards-zone">
+    <view class="section-header">
+      <text class="section-title">🔍 错题"案发现场"还原</text>
+      <text class="section-count">{{currentCardIndex + 1}} / {{cards.length}}</text>
+    </view>
+
+    <swiper
+      class="card-swiper"
+      indicator-dots="{{true}}"
+      indicator-color="rgba(0,0,0,0.2)"
+      indicator-active-color="#E74C3C"
+      autoplay="{{false}}"
+      circular="{{false}}"
+      bindchange="onCardSwipe"
+      current="{{currentCardIndex}}"
+    >
+      <swiper-item wx:for="{{cards}}" wx:key="id">
+        <view class="mistake-card">
+          <!-- 卡片头部 -->
+          <view class="card-header">
+            <view class="card-title-row">
+              <text class="card-title">{{item.title}}</text>
+              <view class="severity-badge severity-{{item.severity}}">
+                <text>{{item.severityLabel}}</text>
+              </view>
+            </view>
+            <view class="card-category" style="background-color: {{item.color}}20; color: {{item.color}};">
+              <text>{{item.categoryLabel}}</text>
+            </view>
+          </view>
+
+          <!-- 案发现场：积木还原 -->
+          <view class="scene-section">
+            <view class="scene-label">
+              <text class="scene-icon">🧩</text>
+              <text>案发现场</text>
+            </view>
+
+            <!-- 积木块展示 -->
+            <view class="blocks-scene" wx:if="{{item.scene.blocks.length > 0}}">
+              <view
+                class="scene-block {{block.isWrong ? 'block-wrong' : ''}}"
+                wx:for="{{item.scene.blocks}}"
+                wx:for-item="block"
+                wx:key="word"
+                style="background-color: {{block.color}};"
+              >
+                <text class="scene-block-text">{{block.word}}</text>
+                <text class="wrong-mark" wx:if="{{block.isWrong}}">✗</text>
+              </view>
+            </view>
+
+            <!-- 拼写错误列表 -->
+            <view class="spelling-errors" wx:if="{{item.spellingErrors && item.spellingErrors.length > 0}}">
+              <view class="spelling-row" wx:for="{{item.spellingErrors}}" wx:for-item="err" wx:key="correct">
+                <view class="spelling-wrong">
+                  <text class="spelling-cross">✗</text>
+                  <text class="spelling-text wrong">{{err.wrong}}</text>
+                </view>
+                <text class="spelling-arrow">→</text>
+                <view class="spelling-correct">
+                  <text class="spelling-check">✓</text>
+                  <text class="spelling-text correct">{{err.correct}}</text>
+                </view>
+                <text class="spelling-hint">{{err.highlight}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 对应原句 -->
+          <view class="sentence-section" wx:if="{{item.wrongSentence}}">
+            <view class="sentence-label">
+              <text class="sentence-icon">📝</text>
+              <text>对应原句</text>
+            </view>
+            <text class="wrong-sentence">{{item.wrongSentence}}</text>
+          </view>
+
+          <!-- 系统诊断 -->
+          <view class="diagnosis-section">
+            <view class="diagnosis-label">
+              <text class="diagnosis-icon">🚨</text>
+              <text>系统诊断</text>
+            </view>
+            <text class="diagnosis-text">{{item.diagnosis}}</text>
+            <view class="exam-impact">
+              <text class="impact-tag">考试影响：{{item.examImpact}}</text>
+            </view>
+          </view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- ============================================================ -->
+  <!-- Zone 3: VIP 专属提分方案 -->
+  <!-- ============================================================ -->
+  <view class="vip-zone">
+    <view class="section-header">
+      <text class="section-title">📄 VIP 专属提分方案</text>
+    </view>
+
+    <!-- 虚化试卷预览 -->
+    <view class="exam-preview-card">
+      <view class="exam-paper">
+        <view class="exam-paper-badge">
+          <text>对标学校真题</text>
+        </view>
+        <text class="exam-paper-title">{{examPreview.title}}</text>
+
+        <!-- 清晰展示的题目预览 -->
+        <view class="preview-questions">
+          <view class="preview-q" wx:for="{{examPreview.previewQuestions}}" wx:key="id">
+            <view class="q-type-badge">
+              <text>{{item.type}}</text>
+              <text class="q-target">针对{{item.targetWeakness}}</text>
+            </view>
+            <text class="q-content">{{item.question}}</text>
+            <view class="q-options" wx:if="{{item.options}}">
+              <text class="q-option" wx:for="{{item.options}}" wx:for-item="opt" wx:key="*this">{{opt}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 虚化遮罩 -->
+        <view class="blur-overlay" wx:if="{{!isVip}}">
+          <view class="blur-content">
+            <text class="blur-icon">🔒</text>
+            <text class="blur-text">开通 VIP 查看完整试卷</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- VIP 卖点 -->
+    <view class="selling-points">
+      <view class="selling-point" wx:for="{{examPreview.sellingPoints}}" wx:key="*this">
+        <text class="point-check">✅</text>
+        <text class="point-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================ -->
+  <!-- Zone 4: 底部悬浮支付按钮 -->
+  <!-- ============================================================ -->
+  <view class="cta-zone">
+    <view class="cta-container">
+      <view class="cta-button {{isVip ? 'cta-vip' : ''}}" bindtap="onGeneratePaper">
+        <text class="cta-main-text" wx:if="{{!isVip}}">
+          💰 开通 VIP，一键生成本周专属错题卷 ({{pricing.ctaPriceText}})
+        </text>
+        <text class="cta-main-text" wx:else>
+          📄 一键生成本周专属错题卷
+        </text>
+      </view>
+      <view class="cta-bonus" wx:if="{{!isVip}}">
+        <text class="bonus-icon">🎁</text>
+        <text class="bonus-text">{{examPreview.bonusContent}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部间距占位 -->
+  <view class="bottom-spacer"></view>
+</view>
