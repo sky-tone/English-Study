@@ -101,7 +101,7 @@ function choosePhoto(options = {}) {
  * @returns {Promise<void>}
  */
 function ensureCameraAuth() {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     wx.getSetting({
       success: (res) => {
         const cameraAuth = res.authSetting['scope.camera'];
