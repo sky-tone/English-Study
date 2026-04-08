@@ -627,34 +627,6 @@ function checkImperativeBeConstraint(sentence, newBlock, insertIndex) {
   if (insertIndex !== beIndex + 1) return null;
 
   // Be 后面只能接形容词
-  if (newBlock.type === BlockType.VERB) {
-    return {
-      accepted: false,
-      message: `Be 动词后面要接状态（如 careful）！\n"Be" must be followed by an adjective!`,
-      errorType: 'grammar',
-      errorSubType: 'imperative_be_adjective',
-      hint: `Be + 形容词 (e.g., Be careful)`,
-      detail: {
-        attempted: newBlock.word,
-        attemptedType: newBlock.type
-      }
-    };
-  }
-
-  if (newBlock.type === BlockType.OBJECT) {
-    return {
-      accepted: false,
-      message: `Be 动词后面要接状态（如 careful）！\n"Be" must be followed by an adjective!`,
-      errorType: 'grammar',
-      errorSubType: 'imperative_be_adjective',
-      hint: `Be + 形容词 (e.g., Be careful)`,
-      detail: {
-        attempted: newBlock.word,
-        attemptedType: newBlock.type
-      }
-    };
-  }
-
   if (newBlock.type !== BlockType.ADJECTIVE) {
     return {
       accepted: false,
