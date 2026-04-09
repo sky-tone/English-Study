@@ -88,6 +88,6 @@
   <!-- 底部信息 -->
   <view class="footer">
     <text class="footer-text">搭搭乐 Dada-le V1.0 · Phase 1 MVP</text>
-    <text class="footer-sub">Module 2 Travel Plan · Module 5 Invitations</text>
+    <text class="footer-sub">Module 1 Seasons · Module 2 Travel Plan · Module 5 Safety</text>
   </view>
 </view>

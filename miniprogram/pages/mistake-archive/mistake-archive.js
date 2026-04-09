@@ -7,8 +7,8 @@
  * Zone 3: VIP 试卷预览
  * Zone 4: 底部悬浮支付按钮
  */
-const { getMistakeArchiveData, generateDynamicAlert } = require('../../utils/mistake-archive-data');
-const { generateExercises, generatePDFData } = require('../../utils/error-tracker');
+const { getMistakeArchiveData, generateDynamicAlert, MISTAKE_CARDS } = require('../../utils/mistake-archive-data');
+const { generateExercises, generatePDFData, generateFallbackExercises } = require('../../utils/error-tracker');
 
 Page({
   data: {
@@ -124,7 +124,18 @@ Page({
     setTimeout(() => {
       wx.hideLoading();
 
-      const exercises = generateExercises(errorLog);
+      let exercises = generateExercises(errorLog);
+
+      // 检查是否有有效习题生成；若没有，使用 MISTAKE_CARDS 生成备选习题
+      const totalQuestions = exercises.fillInBlank.length +
+        exercises.multipleChoice.length +
+        exercises.pronunciation.length +
+        exercises.writing.length;
+
+      if (totalQuestions === 0) {
+        exercises = generateFallbackExercises(MISTAKE_CARDS);
+      }
+
       const summary = [];
 
       if (exercises.fillInBlank.length > 0) {

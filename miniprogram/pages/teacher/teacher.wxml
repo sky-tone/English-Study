@@ -119,6 +119,9 @@
     </view>
 
     <view class="upload-actions" wx:if="{{uploadedPhotos.length > 0}}">
+      <view class="btn-generate" bindtap="generateFromPhotos">
+        <text>📝 生成练习习题</text>
+      </view>
       <view class="btn-clear" bindtap="onClearPhotos">
         <text>🗑️ 清空全部</text>
       </view>

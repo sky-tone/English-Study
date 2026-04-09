@@ -4,6 +4,7 @@
  */
 const { generatePDFData, generateExercises } = require('../../utils/error-tracker');
 const { choosePhoto, getPhotos, deletePhoto, clearPhotos, previewPhoto } = require('../../utils/photo-uploader');
+const { generateExercisesFromPhotos } = require('../../utils/photo-exercise');
 
 Page({
   data: {
@@ -227,5 +228,42 @@ Page({
         }
       }
     });
+  },
+
+  /**
+   * 从上传照片生成练习习题
+   */
+  generateFromPhotos() {
+    const photos = getPhotos('parent');
+    if (photos.length === 0) {
+      wx.showToast({ title: '请先上传练习资料照片', icon: 'none', duration: 2000 });
+      return;
+    }
+
+    wx.showLoading({ title: '正在生成习题...' });
+
+    const result = generateExercisesFromPhotos(photos, { module: 'module_2' });
+
+    setTimeout(() => {
+      wx.hideLoading();
+
+      if (result.exercises) {
+        const summary = [];
+        const ex = result.exercises;
+        if (ex.fillInBlank.length > 0) summary.push(`首字母填空: ${ex.fillInBlank.length} 题`);
+        if (ex.multipleChoice.length > 0) summary.push(`单项选择: ${ex.multipleChoice.length} 题`);
+        if (ex.pronunciation.length > 0) summary.push(`发音辨析: ${ex.pronunciation.length} 题`);
+        if (ex.writing.length > 0) summary.push(`情景写作: ${ex.writing.length} 题`);
+
+        wx.showModal({
+          title: '📝 照片习题生成',
+          content: `${result.message}\n\n${summary.join('\n')}\n\n完整 OCR 识别功能将在 Phase 2 中开放。`,
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      } else {
+        wx.showToast({ title: result.message, icon: 'none', duration: 2500 });
+      }
+    }, 1000);
   }
 });

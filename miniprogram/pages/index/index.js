@@ -22,7 +22,7 @@ Page({
     getApp().globalData.role = 'student';
 
     wx.navigateTo({
-      url: '/pages/level/level?levelId=level_1',
+      url: '/pages/level/level?levelId=level_m1_1',
       fail(err) {
         console.error('navigateTo level failed:', err);
         wx.showToast({ title: '页面跳转失败，请重试', icon: 'none' });

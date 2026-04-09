@@ -29,7 +29,10 @@ Page({
       tenses: [],
       verbs: [],
       times: [],
-      sequences: []
+      sequences: [],
+      imperatives: [],
+      objects: [],
+      adjectives: []
     },
     currentSentence: [],    // 当前正在拼装的句子
     completedSentences: [],  // 已完成的句子（文本）
@@ -295,11 +298,15 @@ Page({
    */
   logCollisionError(result) {
     if (result.errorType) {
+      const moduleId = this.data.levelData.module
+        ? this.data.levelData.module.toLowerCase().replace(' ', '_')
+        : 'unknown';
       getApp().logError({
         type: result.errorType,
         subType: result.errorSubType,
         context: result.message,
-        detail: result.detail || {}
+        detail: result.detail || {},
+        moduleId
       });
     }
   },

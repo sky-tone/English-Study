@@ -16,6 +16,7 @@ const {
   ErrorCategory,
   QuestionTemplate,
   generateExercises,
+  generateFallbackExercises,
   generatePDFData,
   SPELLING_TEMPLATES,
   GRAMMAR_TEMPLATES,
@@ -555,5 +556,75 @@ describe('Module 5 - generateExercises imperative errors', () => {
     const result = generateExercises(errorLog);
     expect(result.writing.length).toBeGreaterThan(0);
     expect(result.writing[0].module).toBe('Module 5');
+  });
+});
+
+describe('generateFallbackExercises', () => {
+  test('returns empty arrays for null input', () => {
+    const result = generateFallbackExercises(null);
+    expect(result.fillInBlank).toHaveLength(0);
+    expect(result.multipleChoice).toHaveLength(0);
+    expect(result.writing).toHaveLength(0);
+    expect(result.pronunciation).toHaveLength(0);
+  });
+
+  test('returns empty arrays for empty array', () => {
+    const result = generateFallbackExercises([]);
+    expect(result.fillInBlank).toHaveLength(0);
+    expect(result.multipleChoice).toHaveLength(0);
+  });
+
+  test('generates exercises from grammar MISTAKE_CARDS', () => {
+    const cards = [
+      { id: 'mc1', category: 'grammar', title: 'Be动词错误' }
+    ];
+    const result = generateFallbackExercises(cards);
+    expect(result.multipleChoice.length).toBeGreaterThan(0);
+  });
+
+  test('generates exercises from spelling MISTAKE_CARDS', () => {
+    const cards = [
+      {
+        id: 'mc2',
+        category: 'spelling',
+        title: '拼写错误',
+        spellingErrors: [
+          { correct: 'travel', wrong: 'traval', highlight: 'a→e' }
+        ]
+      }
+    ];
+    const result = generateFallbackExercises(cards);
+    expect(result.fillInBlank.length).toBeGreaterThan(0);
+  });
+
+  test('generates writing exercises from structure cards', () => {
+    const cards = [
+      { id: 'mc3', category: 'structure', title: '句法结构' }
+    ];
+    const result = generateFallbackExercises(cards);
+    expect(result.writing.length).toBeGreaterThan(0);
+  });
+
+  test('always includes pronunciation exercise', () => {
+    const cards = [
+      { id: 'mc1', category: 'grammar', title: 'test' }
+    ];
+    const result = generateFallbackExercises(cards);
+    expect(result.pronunciation.length).toBeGreaterThan(0);
+  });
+
+  test('exercises have source field', () => {
+    const cards = [
+      { id: 'mc1', category: 'grammar', title: 'test' }
+    ];
+    const result = generateFallbackExercises(cards);
+    const allItems = [
+      ...result.multipleChoice,
+      ...result.writing,
+      ...result.pronunciation
+    ];
+    allItems.forEach(item => {
+      expect(item.source).toBeDefined();
+    });
   });
 });

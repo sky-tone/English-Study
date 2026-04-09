@@ -38,6 +38,53 @@ const NPC_CHARACTERS = {
 };
 
 // ============================================================
+// 积木数据库 - Module 1 Seasons
+// ============================================================
+
+// 🟦 蓝色积木 - 主语 (Module 1)
+const SEASON_SUBJECT_BLOCKS = [
+  { id: 'ss1', word: 'It', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss2', word: 'I', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss3', word: 'We', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss4', word: 'The weather', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss5', word: 'Spring', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss6', word: 'Summer', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss7', word: 'Autumn', type: BlockType.SUBJECT, color: '#4A90D9' },
+  { id: 'ss8', word: 'Winter', type: BlockType.SUBJECT, color: '#4A90D9' }
+];
+
+// 🟥 红色积木 - 时态 (Module 1)
+const SEASON_TENSE_BLOCKS = [
+  { id: 'st1', word: 'is', type: BlockType.TENSE, color: '#E74C3C', forSubjects: ['It', 'The weather', 'Spring', 'Summer', 'Autumn', 'Winter'] },
+  { id: 'st2', word: 'can', type: BlockType.TENSE, color: '#E74C3C', accepts: [VerbForm.BARE] },
+  { id: 'st3', word: 'like', type: BlockType.TENSE, color: '#E74C3C', forSubjects: ['I', 'We'] },
+  { id: 'st4', word: 'likes', type: BlockType.TENSE, color: '#E74C3C', forSubjects: ['He', 'She', 'Ben'], isDistractor: true }
+];
+
+// 🟩 绿色积木 - 动词/形容词 (Module 1)
+const SEASON_VERB_BLOCKS = [
+  { id: 'sv_s1', word: 'warm', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s2', word: 'hot', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s3', word: 'cool', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s4', word: 'cold', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s5', word: 'go swimming', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s6', word: 'fly kites', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s7', word: 'make a snowman', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  { id: 'sv_s8', word: 'pick flowers', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.BARE },
+  // 干扰项
+  { id: 'sv_s_wrong1', word: 'swimming', type: BlockType.VERB, color: '#27AE60', verbForm: VerbForm.GERUND, isDistractor: true }
+];
+
+// 🟨 黄色积木 - 时间/季节状语 (Module 1)
+const SEASON_TIME_BLOCKS = [
+  { id: 'stm1', word: 'in spring', type: BlockType.TIME, color: '#F39C12' },
+  { id: 'stm2', word: 'in summer', type: BlockType.TIME, color: '#F39C12' },
+  { id: 'stm3', word: 'in autumn', type: BlockType.TIME, color: '#F39C12' },
+  { id: 'stm4', word: 'in winter', type: BlockType.TIME, color: '#F39C12' },
+  { id: 'stm5', word: 'in Guangzhou', type: BlockType.TIME, color: '#F39C12' }
+];
+
+// ============================================================
 // 积木数据库 - Module 2 Travel Plan
 // ============================================================
 
@@ -159,6 +206,84 @@ const ADJECTIVE_BLOCKS = [
 // 关卡配置 - Module 2 Travel Plan
 // ============================================================
 const LEVELS = [
+  // ============================================================
+  // Module 1 Seasons - 季节与天气关卡
+  // ============================================================
+  {
+    id: 'level_m1_1',
+    module: 'Module 1',
+    title: 'Seasons - Level 1',
+    subtitle: '认识四季，描述天气',
+    difficulty: 1,
+    npc: 'aki',
+    trigger: {
+      character: 'aki',
+      message: 'Wow, your planet has 4 seasons! Tell me about the weather! 🌤️',
+      subMessage: '用积木描述不同季节的天气吧！'
+    },
+    objectives: [
+      '用 It is + 形容词 描述天气',
+      '搭配季节时间状语'
+    ],
+    requiredTypes: [BlockType.SUBJECT, BlockType.TENSE, BlockType.VERB],
+    availableBlocks: {
+      subjects: ['ss1', 'ss4', 'ss5', 'ss6', 'ss7', 'ss8'],
+      tenses: ['st1'],
+      verbs: ['sv_s1', 'sv_s2', 'sv_s3', 'sv_s4'],
+      times: ['stm1', 'stm2', 'stm3', 'stm4', 'stm5'],
+      sequences: [],
+      imperatives: [],
+      objects: [],
+      adjectives: []
+    },
+    sampleAnswers: [
+      ['It', 'is', 'warm', 'in spring'],
+      ['It', 'is', 'hot', 'in summer'],
+      ['It', 'is', 'cool', 'in autumn'],
+      ['It', 'is', 'cold', 'in winter']
+    ],
+    maxScore: 100,
+    passScore: 60
+  },
+  {
+    id: 'level_m1_2',
+    module: 'Module 1',
+    title: 'Seasons Fun - Level 2',
+    subtitle: '说说你最喜欢的季节活动',
+    difficulty: 1,
+    npc: 'ben',
+    trigger: {
+      character: 'ben',
+      message: 'I love playing in the snow! What can you do in different seasons? ☃️',
+      subMessage: '描述不同季节可以做什么活动吧！'
+    },
+    objectives: [
+      '用 I/We can + 动词原形 描述活动',
+      '搭配不同的季节时间状语'
+    ],
+    requiredTypes: [BlockType.SUBJECT, BlockType.TENSE, BlockType.VERB],
+    availableBlocks: {
+      subjects: ['ss2', 'ss3'],
+      tenses: ['st2'],
+      verbs: ['sv_s5', 'sv_s6', 'sv_s7', 'sv_s8', 'sv_s_wrong1'],
+      times: ['stm1', 'stm2', 'stm3', 'stm4'],
+      sequences: [],
+      imperatives: [],
+      objects: [],
+      adjectives: []
+    },
+    sampleAnswers: [
+      ['I', 'can', 'go swimming', 'in summer'],
+      ['We', 'can', 'fly kites', 'in spring'],
+      ['I', 'can', 'make a snowman', 'in winter'],
+      ['We', 'can', 'pick flowers', 'in autumn']
+    ],
+    maxScore: 100,
+    passScore: 60
+  },
+  // ============================================================
+  // Module 2 Travel Plan - 旅行计划关卡
+  // ============================================================
   {
     id: 'level_1',
     module: 'Module 2',
@@ -387,6 +512,25 @@ const LEVELS = [
 // 词汇背包 - 本周必背清单
 // ============================================================
 const VOCABULARY_BACKPACK = {
+  module_1: {
+    title: 'Module 1 - Seasons',
+    words: [
+      { word: 'spring', chinese: '春天', phonetic: '/sprɪŋ/' },
+      { word: 'summer', chinese: '夏天', phonetic: '/ˈsʌmə/' },
+      { word: 'autumn', chinese: '秋天', phonetic: '/ˈɔːtəm/' },
+      { word: 'winter', chinese: '冬天', phonetic: '/ˈwɪntə/' },
+      { word: 'warm', chinese: '温暖的', phonetic: '/wɔːm/' },
+      { word: 'hot', chinese: '炎热的', phonetic: '/hɒt/' },
+      { word: 'cool', chinese: '凉爽的', phonetic: '/kuːl/' },
+      { word: 'cold', chinese: '寒冷的', phonetic: '/kəʊld/' },
+      { word: 'weather', chinese: '天气', phonetic: '/ˈweðə/' },
+      { word: 'season', chinese: '季节', phonetic: '/ˈsiːzn/' },
+      { word: 'fly kites', chinese: '放风筝', phonetic: '' },
+      { word: 'go swimming', chinese: '去游泳', phonetic: '' },
+      { word: 'make a snowman', chinese: '堆雪人', phonetic: '' },
+      { word: 'pick flowers', chinese: '摘花', phonetic: '' }
+    ]
+  },
   module_2: {
     title: 'Module 2 - Travel Plan',
     words: [
@@ -441,10 +585,10 @@ function getBlocksForLevel(levelId) {
   if (!level) return null;
 
   const allBlocks = {
-    subjects: SUBJECT_BLOCKS,
-    tenses: TENSE_BLOCKS,
-    verbs: [...VERB_BLOCKS, ...SAFETY_VERB_BLOCKS],
-    times: TIME_BLOCKS,
+    subjects: [...SEASON_SUBJECT_BLOCKS, ...SUBJECT_BLOCKS],
+    tenses: [...SEASON_TENSE_BLOCKS, ...TENSE_BLOCKS],
+    verbs: [...SEASON_VERB_BLOCKS, ...VERB_BLOCKS, ...SAFETY_VERB_BLOCKS],
+    times: [...SEASON_TIME_BLOCKS, ...TIME_BLOCKS],
     sequences: SEQUENCE_BLOCKS,
     imperatives: IMPERATIVE_BLOCKS,
     objects: OBJECT_BLOCKS,
@@ -469,6 +613,10 @@ function getBlocksForLevel(levelId) {
  */
 function getBlockById(blockId) {
   const allBlocks = [
+    ...SEASON_SUBJECT_BLOCKS,
+    ...SEASON_TENSE_BLOCKS,
+    ...SEASON_VERB_BLOCKS,
+    ...SEASON_TIME_BLOCKS,
     ...SUBJECT_BLOCKS,
     ...TENSE_BLOCKS,
     ...VERB_BLOCKS,
@@ -484,6 +632,10 @@ function getBlockById(blockId) {
 
 module.exports = {
   NPC_CHARACTERS,
+  SEASON_SUBJECT_BLOCKS,
+  SEASON_TENSE_BLOCKS,
+  SEASON_VERB_BLOCKS,
+  SEASON_TIME_BLOCKS,
   SUBJECT_BLOCKS,
   TENSE_BLOCKS,
   VERB_BLOCKS,

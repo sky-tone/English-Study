@@ -2,6 +2,13 @@
  * sentence-area.js - 句子拼装区域组件
  */
 const { validateSentence } = require('../../utils/collision');
+const { checkGrammarLocal } = require('../../utils/grammar-checker');
+
+// 音频管理器 - 提交成功/失败专属声音
+const successAudio = wx.createInnerAudioContext();
+const failAudio = wx.createInnerAudioContext();
+successAudio.src = '/audio/success.wav';
+failAudio.src = '/audio/fail.wav';
 
 Component({
   properties: {
@@ -89,14 +96,28 @@ Component({
       const blocks = this.properties.sentenceBlocks;
       const result = validateSentence(blocks);
 
+      // 增强语法检查（在碰撞引擎之上追加本地语法规则）
+      const sentenceText = blocks.map(b => b.word).join(' ');
+      const grammarResult = checkGrammarLocal(sentenceText, blocks);
+      if (grammarResult.errors.length > 0) {
+        result.valid = false;
+        result.errors.push(...grammarResult.errors);
+      }
+      if (grammarResult.warnings.length > 0) {
+        result.warnings.push(...grammarResult.warnings);
+      }
+
       if (result.valid) {
-        const sentenceText = blocks.map(b => b.word).join(' ') + '.';
+        const finalText = sentenceText + '.';
         this.setData({
           feedbackMessage: '🎉 太棒了！句子正确！Great job!',
           feedbackType: 'success'
         });
+        // 播放成功音效
+        successAudio.stop();
+        successAudio.play();
         this.triggerEvent('submit', {
-          sentence: sentenceText,
+          sentence: finalText,
           blocks: blocks,
           score: result.score,
           hasSequence: result.hasSequence
@@ -107,6 +128,9 @@ Component({
           feedbackMessage: errorMsg,
           feedbackType: 'error'
         });
+        // 播放失败音效
+        failAudio.stop();
+        failAudio.play();
         this.triggerEvent('validationerror', {
           errors: result.errors,
           warnings: result.warnings

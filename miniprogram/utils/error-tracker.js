@@ -415,10 +415,86 @@ function generatePDFData(errorLog, studentInfo) {
   };
 }
 
+/**
+ * 从错题卡片数据（MISTAKE_CARDS）生成备选习题
+ * 当 errorLog 为空或无法匹配模板时，作为兜底数据源
+ *
+ * @param {Array} mistakeCards - MISTAKE_CARDS 数据
+ * @returns {Object} 按题型分类的题目集合
+ */
+function generateFallbackExercises(mistakeCards) {
+  const exercises = {
+    fillInBlank: [],
+    multipleChoice: [],
+    writing: [],
+    pronunciation: []
+  };
+
+  if (!mistakeCards || !Array.isArray(mistakeCards) || mistakeCards.length === 0) {
+    return exercises;
+  }
+
+  for (const card of mistakeCards) {
+    if (card.category === 'grammar' || card.category === 'structure') {
+      // 语法/句法错题 → 生成单选题
+      const grammarKeys = Object.keys(GRAMMAR_TEMPLATES);
+      for (const key of grammarKeys) {
+        const templates = GRAMMAR_TEMPLATES[key];
+        if (templates && templates.length > 0) {
+          exercises.multipleChoice.push({
+            ...templates[0],
+            type: QuestionTemplate.MULTIPLE_CHOICE,
+            source: { type: card.category, context: card.title }
+          });
+          break; // 每张卡片最多生成一道
+        }
+      }
+      // 也添加写作题
+      if (WRITING_TEMPLATES.length > 0) {
+        exercises.writing.push({
+          ...WRITING_TEMPLATES[0],
+          type: QuestionTemplate.WRITING,
+          source: { type: card.category, context: card.title }
+        });
+      }
+    }
+
+    if (card.category === 'spelling' && card.spellingErrors) {
+      // 拼写错题 → 生成首字母填空
+      for (const se of card.spellingErrors) {
+        const template = SPELLING_TEMPLATES.find(t => t.pattern === se.correct);
+        if (template) {
+          exercises.fillInBlank.push({
+            ...template,
+            type: QuestionTemplate.FILL_IN_BLANK,
+            source: { type: 'spelling', context: `${se.correct} → ${se.wrong}` }
+          });
+        }
+      }
+    }
+  }
+
+  // 始终加一道发音题
+  if (PHONICS_TEMPLATES.length > 0) {
+    exercises.pronunciation.push({
+      ...PHONICS_TEMPLATES[0],
+      type: QuestionTemplate.PRONUNCIATION,
+      source: { type: 'phonics', context: 'fallback' }
+    });
+  }
+
+  // 去重
+  exercises.fillInBlank = deduplicateByQuestion(exercises.fillInBlank);
+  exercises.multipleChoice = deduplicateByQuestion(exercises.multipleChoice);
+
+  return exercises;
+}
+
 module.exports = {
   ErrorCategory,
   QuestionTemplate,
   generateExercises,
+  generateFallbackExercises,
   generatePDFData,
   SPELLING_TEMPLATES,
   GRAMMAR_TEMPLATES,
