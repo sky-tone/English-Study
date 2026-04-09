@@ -4,12 +4,6 @@
 const { validateSentence } = require('../../utils/collision');
 const { checkGrammarLocal } = require('../../utils/grammar-checker');
 
-// 音频管理器 - 提交成功/失败专属声音
-const successAudio = wx.createInnerAudioContext();
-const failAudio = wx.createInnerAudioContext();
-successAudio.src = '/audio/success.wav';
-failAudio.src = '/audio/fail.wav';
-
 Component({
   properties: {
     // 当前句子中的积木
@@ -34,6 +28,27 @@ Component({
     previewText: '',
     feedbackMessage: '',
     feedbackType: '' // 'success' | 'warning' | 'error'
+  },
+
+  lifetimes: {
+    attached() {
+      // 在组件挂载时创建音频上下文
+      this._successAudio = wx.createInnerAudioContext();
+      this._failAudio = wx.createInnerAudioContext();
+      this._successAudio.src = '/audio/success.wav';
+      this._failAudio.src = '/audio/fail.wav';
+    },
+    detached() {
+      // 在组件卸载时销毁音频上下文，防止内存泄漏
+      if (this._successAudio) {
+        this._successAudio.destroy();
+        this._successAudio = null;
+      }
+      if (this._failAudio) {
+        this._failAudio.destroy();
+        this._failAudio = null;
+      }
+    }
   },
 
   observers: {
@@ -114,8 +129,10 @@ Component({
           feedbackType: 'success'
         });
         // 播放成功音效
-        successAudio.stop();
-        successAudio.play();
+        if (this._successAudio) {
+          this._successAudio.stop();
+          this._successAudio.play();
+        }
         this.triggerEvent('submit', {
           sentence: finalText,
           blocks: blocks,
@@ -129,8 +146,10 @@ Component({
           feedbackType: 'error'
         });
         // 播放失败音效
-        failAudio.stop();
-        failAudio.play();
+        if (this._failAudio) {
+          this._failAudio.stop();
+          this._failAudio.play();
+        }
         this.triggerEvent('validationerror', {
           errors: result.errors,
           warnings: result.warnings

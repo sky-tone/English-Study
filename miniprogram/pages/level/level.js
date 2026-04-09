@@ -67,7 +67,7 @@ Page({
     const hasNextLevel = levelIndex < LEVELS.length - 1;
 
     // 获取词汇背包
-    const moduleKey = levelData.module.toLowerCase().replace(' ', '_');
+    const moduleKey = levelData.module.toLowerCase().replace(/ /g, '_');
     const vocab = VOCABULARY_BACKPACK[moduleKey] || VOCABULARY_BACKPACK.module_2;
 
     this.setData({
@@ -299,7 +299,7 @@ Page({
   logCollisionError(result) {
     if (result.errorType) {
       const moduleId = this.data.levelData.module
-        ? this.data.levelData.module.toLowerCase().replace(' ', '_')
+        ? this.data.levelData.module.toLowerCase().replace(/ /g, '_')
         : 'unknown';
       getApp().logError({
         type: result.errorType,

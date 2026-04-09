@@ -129,7 +129,7 @@ function getModuleExercises(moduleName) {
     result.spelling = SPELLING_TEMPLATES.filter(t =>
       ['autumn', 'swim'].includes(t.pattern)
     );
-    result.grammar = GRAMMAR_TEMPLATES.be_verb || [];
+    result.grammar = GRAMMAR_TEMPLATES.be_verb ? [...GRAMMAR_TEMPLATES.be_verb] : [];
     result.writing = WRITING_TEMPLATES.filter(t => !t.module);
   } else if (moduleName === 'module_2') {
     // Module 2 Travel Plan
@@ -137,10 +137,10 @@ function getModuleExercises(moduleName) {
       ['climb', 'travel', 'museum', 'autumn', 'picnic', 'visit', 'swim'].includes(t.pattern)
     );
     const grammarTemplates = [
-      ...(GRAMMAR_TEMPLATES.be_verb || []),
-      ...(GRAMMAR_TEMPLATES.will_ing || []),
-      ...(GRAMMAR_TEMPLATES.be_going_to_noun || []),
-      ...(GRAMMAR_TEMPLATES.be_going_to_wrong_form || [])
+      ...(GRAMMAR_TEMPLATES.be_verb ? GRAMMAR_TEMPLATES.be_verb : []),
+      ...(GRAMMAR_TEMPLATES.will_ing ? GRAMMAR_TEMPLATES.will_ing : []),
+      ...(GRAMMAR_TEMPLATES.be_going_to_noun ? GRAMMAR_TEMPLATES.be_going_to_noun : []),
+      ...(GRAMMAR_TEMPLATES.be_going_to_wrong_form ? GRAMMAR_TEMPLATES.be_going_to_wrong_form : [])
     ];
     result.grammar = grammarTemplates;
     result.writing = WRITING_TEMPLATES.filter(t => !t.module || t.module !== 'Module 5');
@@ -150,8 +150,8 @@ function getModuleExercises(moduleName) {
       ['dangerous', 'careful', 'cross', 'touch', 'feed'].includes(t.pattern)
     );
     const grammarTemplates = [
-      ...(GRAMMAR_TEMPLATES.imperative_verb_form || []),
-      ...(GRAMMAR_TEMPLATES.imperative_be_adjective || [])
+      ...(GRAMMAR_TEMPLATES.imperative_verb_form ? GRAMMAR_TEMPLATES.imperative_verb_form : []),
+      ...(GRAMMAR_TEMPLATES.imperative_be_adjective ? GRAMMAR_TEMPLATES.imperative_be_adjective : [])
     ];
     result.grammar = grammarTemplates;
     result.writing = WRITING_TEMPLATES.filter(t => t.module === 'Module 5');
