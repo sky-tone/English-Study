@@ -51,6 +51,11 @@ const BE_VERB_RULES = {
   'Aki': ['is'],
   'My father': ['is'],
   'My mother': ['is'],
+  'The weather': ['is'],
+  'Spring': ['is'],
+  'Summer': ['is'],
+  'Autumn': ['is'],
+  'Winter': ['is'],
   'We': ['are'],
   'You': ['are'],
   'They': ['are'],
@@ -375,7 +380,13 @@ function validateSentence(sentence) {
     sentence[0].type === BlockType.IMPERATIVE
   );
   if (!hasTense && hasSubject && !isImperative) {
-    warnings.push('句子可能缺少时态词（红色积木）');
+    // 当存在时间状语（如 tomorrow, next week）时，缺少时态标记为错误
+    const hasTimeWord = sentence.some(b => b.type === BlockType.TIME);
+    if (hasTimeWord) {
+      errors.push('句子有时间状语但缺少时态词（红色积木 will / be going to），请添加！');
+    } else {
+      errors.push('句子缺少时态词（红色积木 will / be going to）');
+    }
   }
 
   // ---- 语法规则校验 ----

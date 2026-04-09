@@ -58,7 +58,7 @@ App({
     const entry = {
       ...error,
       timestamp: Date.now(),
-      moduleId: 'module_2'
+      moduleId: error.moduleId || 'unknown'
     };
     this.globalData.errorLog.push(entry);
 

@@ -450,11 +450,11 @@ describe('validateSentence', () => {
     expect(result.errors.some(e => e.includes('动词'))).toBe(true);
   });
 
-  test('sentence with subject + verb but no tense → valid with warning', () => {
+  test('sentence with subject + verb but no tense → invalid with error', () => {
     const sentence = [subjectI(), verbBare()];
     const result = validateSentence(sentence);
-    expect(result.valid).toBe(true);
-    expect(result.warnings.some(w => w.includes('时态'))).toBe(true);
+    expect(result.valid).toBe(false);
+    expect(result.errors.some(e => e.includes('时态'))).toBe(true);
   });
 
   test('imperative sentence (Use...) does not require subject', () => {

@@ -12,6 +12,10 @@
 
 const {
   NPC_CHARACTERS,
+  SEASON_SUBJECT_BLOCKS,
+  SEASON_TENSE_BLOCKS,
+  SEASON_VERB_BLOCKS,
+  SEASON_TIME_BLOCKS,
   SUBJECT_BLOCKS,
   TENSE_BLOCKS,
   VERB_BLOCKS,
@@ -186,6 +190,10 @@ describe('Level configurations', () => {
 
   test('level availableBlocks references valid block IDs', () => {
     const allBlockIds = new Set([
+      ...SEASON_SUBJECT_BLOCKS.map(b => b.id),
+      ...SEASON_TENSE_BLOCKS.map(b => b.id),
+      ...SEASON_VERB_BLOCKS.map(b => b.id),
+      ...SEASON_TIME_BLOCKS.map(b => b.id),
       ...SUBJECT_BLOCKS.map(b => b.id),
       ...TENSE_BLOCKS.map(b => b.id),
       ...VERB_BLOCKS.map(b => b.id),
@@ -538,5 +546,78 @@ describe('Module 5 - Vocabulary Backpack', () => {
       expect(typeof entry.word).toBe('string');
       expect(typeof entry.chinese).toBe('string');
     }
+  });
+});
+
+describe('Module 1 Seasons', () => {
+  test('SEASON_SUBJECT_BLOCKS has season-related subjects', () => {
+    const words = SEASON_SUBJECT_BLOCKS.map(b => b.word);
+    expect(words).toContain('It');
+    expect(words).toContain('Spring');
+    expect(words).toContain('Summer');
+    expect(words).toContain('Autumn');
+    expect(words).toContain('Winter');
+  });
+
+  test('SEASON_TENSE_BLOCKS includes is and can', () => {
+    const words = SEASON_TENSE_BLOCKS.map(b => b.word);
+    expect(words).toContain('is');
+    expect(words).toContain('can');
+  });
+
+  test('SEASON_VERB_BLOCKS has weather and activity verbs', () => {
+    const words = SEASON_VERB_BLOCKS.map(b => b.word);
+    expect(words).toContain('warm');
+    expect(words).toContain('go swimming');
+    expect(words).toContain('fly kites');
+    expect(words).toContain('make a snowman');
+  });
+
+  test('SEASON_TIME_BLOCKS has season time phrases', () => {
+    const words = SEASON_TIME_BLOCKS.map(b => b.word);
+    expect(words).toContain('in spring');
+    expect(words).toContain('in summer');
+    expect(words).toContain('in autumn');
+    expect(words).toContain('in winter');
+  });
+
+  test('level_m1_1 is Module 1 Seasons level', () => {
+    const level = LEVELS.find(l => l.id === 'level_m1_1');
+    expect(level).toBeDefined();
+    expect(level.module).toBe('Module 1');
+    expect(level.title).toContain('Seasons');
+  });
+
+  test('level_m1_2 is Module 1 Seasons Fun level', () => {
+    const level = LEVELS.find(l => l.id === 'level_m1_2');
+    expect(level).toBeDefined();
+    expect(level.module).toBe('Module 1');
+  });
+
+  test('module_1 vocabulary exists', () => {
+    expect(VOCABULARY_BACKPACK.module_1).toBeDefined();
+    expect(VOCABULARY_BACKPACK.module_1.words.length).toBeGreaterThan(0);
+  });
+
+  test('module_1 vocabulary has season words', () => {
+    const words = VOCABULARY_BACKPACK.module_1.words.map(w => w.word);
+    expect(words).toContain('spring');
+    expect(words).toContain('summer');
+    expect(words).toContain('warm');
+  });
+
+  test('getBlocksForLevel returns blocks for level_m1_1', () => {
+    const blocks = getBlocksForLevel('level_m1_1');
+    expect(blocks).toBeDefined();
+    expect(blocks.subjects.length).toBeGreaterThan(0);
+    expect(blocks.tenses.length).toBeGreaterThan(0);
+    expect(blocks.verbs.length).toBeGreaterThan(0);
+  });
+
+  test('getBlocksForLevel returns blocks for level_m1_2', () => {
+    const blocks = getBlocksForLevel('level_m1_2');
+    expect(blocks).toBeDefined();
+    expect(blocks.subjects.length).toBeGreaterThan(0);
+    expect(blocks.verbs.length).toBeGreaterThan(0);
   });
 });

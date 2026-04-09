@@ -4,11 +4,20 @@
  * Phase 2: 完整的班级管理、作业下发功能
  */
 const { choosePhoto, getPhotos, deletePhoto, clearPhotos, previewPhoto } = require('../../utils/photo-uploader');
+const { generateExercisesFromPhotos } = require('../../utils/photo-exercise');
 
 Page({
   data: {
     classes: [],
     modules: [
+      {
+        id: 'module_1',
+        name: 'Module 1 - Seasons',
+        description: '四季天气 · It is + 形容词 / can + 动词原形',
+        icon: '🌤️',
+        color: '#27AE60',
+        levelCount: 2
+      },
       {
         id: 'module_2',
         name: 'Module 2 - Travel Plan',
@@ -19,11 +28,11 @@ Page({
       },
       {
         id: 'module_5',
-        name: 'Module 5 - Invitations',
-        description: '祈使句 Use...to... 句型',
-        icon: '🎨',
+        name: 'Module 5 - Safety',
+        description: '安全守则 · 祈使句 Don\'t / Be / Use...to...',
+        icon: '🚦',
         color: '#9B59B6',
-        levelCount: 1
+        levelCount: 4
       }
     ],
     uploadedPhotos: []
@@ -157,5 +166,42 @@ Page({
         }
       }
     });
+  },
+
+  /**
+   * 从上传照片生成练习习题
+   */
+  generateFromPhotos() {
+    const photos = getPhotos('teacher');
+    if (photos.length === 0) {
+      wx.showToast({ title: '请先上传练习资料照片', icon: 'none', duration: 2000 });
+      return;
+    }
+
+    wx.showLoading({ title: '正在生成习题...' });
+
+    const result = generateExercisesFromPhotos(photos, { module: 'module_2' });
+
+    setTimeout(() => {
+      wx.hideLoading();
+
+      if (result.exercises) {
+        const summary = [];
+        const ex = result.exercises;
+        if (ex.fillInBlank.length > 0) summary.push(`首字母填空: ${ex.fillInBlank.length} 题`);
+        if (ex.multipleChoice.length > 0) summary.push(`单项选择: ${ex.multipleChoice.length} 题`);
+        if (ex.pronunciation.length > 0) summary.push(`发音辨析: ${ex.pronunciation.length} 题`);
+        if (ex.writing.length > 0) summary.push(`情景写作: ${ex.writing.length} 题`);
+
+        wx.showModal({
+          title: '📝 照片习题生成',
+          content: `${result.message}\n\n${summary.join('\n')}\n\n完整 OCR 识别功能将在 Phase 2 中开放。`,
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      } else {
+        wx.showToast({ title: result.message, icon: 'none', duration: 2500 });
+      }
+    }, 1000);
   }
 });

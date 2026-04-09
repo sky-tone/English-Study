@@ -109,6 +109,23 @@
         </view>
       </view>
 
+      <!-- 🟥 红色 - 祈使句引擎 (Module 5) -->
+      <view class="block-category" wx:if="{{availableBlocks.imperatives.length > 0}}">
+        <text class="category-label imperative-label">🟥 指令引擎 Imperative</text>
+        <view class="block-row">
+          <view
+            class="tap-block imperative-block"
+            wx:for="{{availableBlocks.imperatives}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
       <!-- 🟨 黄色 - 时间 -->
       <view class="block-category" wx:if="{{availableBlocks.times.length > 0}}">
         <text class="category-label time-label">🟨 时间 Time</text>
@@ -116,6 +133,40 @@
           <view
             class="tap-block time-block"
             wx:for="{{availableBlocks.times}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 🟨 黄色 - 危险物品/地点 (Module 5) -->
+      <view class="block-category" wx:if="{{availableBlocks.objects.length > 0}}">
+        <text class="category-label object-label">🟨 物品/地点 Object</text>
+        <view class="block-row">
+          <view
+            class="tap-block object-block"
+            wx:for="{{availableBlocks.objects}}"
+            wx:key="id"
+            bindtap="onBlockTap"
+            data-block="{{item}}"
+            style="background-color: {{item.color}}"
+          >
+            <text class="tap-block-text">{{item.word}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 🟣 紫色 - 条件/状态 (Module 5) -->
+      <view class="block-category" wx:if="{{availableBlocks.adjectives.length > 0}}">
+        <text class="category-label adjective-label">🟣 状态 Adjective</text>
+        <view class="block-row">
+          <view
+            class="tap-block adjective-block"
+            wx:for="{{availableBlocks.adjectives}}"
             wx:key="id"
             bindtap="onBlockTap"
             data-block="{{item}}"
